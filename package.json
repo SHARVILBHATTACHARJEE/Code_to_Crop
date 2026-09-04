@@ -1,0 +1,21 @@
+{
+  "name": "farmconnect",
+  "version": "1.0.0",
+  "description": "Smart agricultural procurement management platform",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend",
+    "dashboard"
+  ],
+  "scripts": {
+    "dev:backend": "npm run dev --workspace=backend",
+    "dev:frontend": "npm run dev --workspace=frontend",
+    "dev:dashboard": "npm run dev --workspace=dashboard"
+  },
+  "main": "index.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}

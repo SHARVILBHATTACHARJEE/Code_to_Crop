@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
 import { updateBookingStatus, createSchedule } from '../api/firestore';
 import { useStore } from '../store';
@@ -35,11 +35,10 @@ export default function QueueView() {
 
   useEffect(() => {
     // Fetch all bookings for this center, real-time
-    // No date filter so demo data (future dates) shows up correctly
+    // No orderBy in query → no composite index needed; sorting is done client-side
     const q = query(
       collection(db, 'bookings'),
-      where('centerId', '==', user.centerId),
-      orderBy('date', 'asc')
+      where('centerId', '==', user.centerId)
     );
     const unsub = onSnapshot(
       q,
@@ -49,14 +48,11 @@ export default function QueueView() {
           .sort((a, b) =>
             a.date === b.date
               ? (a.slotTime || '').localeCompare(b.slotTime || '')
-              : a.date.localeCompare(b.date)
+              : (a.date || '').localeCompare(b.date || '')
           );
         setBookings(data);
       },
-      (err) => {
-        console.error('Firestore onSnapshot error:', err);
-        // If index is missing, Firestore provides a link in the console to create it
-      }
+      (err) => console.error('Firestore onSnapshot error:', err)
     );
     return () => unsub();
   }, [user.centerId]);

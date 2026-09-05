@@ -1,15 +1,19 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useStore } from './store';
+import { seedFirestore } from './api/seed';
 
 import Login from './pages/Login';
 import Home from './pages/Home';
 import BookSlot from './pages/BookSlot';
 import MyToken from './pages/MyToken';
 
+// Seed Firestore once on app startup
+seedFirestore();
+
 const ProtectedRoute = ({ children }) => {
-  const token = useStore((state) => state.token);
-  if (!token) return <Navigate to="/login" replace />;
+  const user = useStore((state) => state.user);
+  if (!user) return <Navigate to="/login" replace />;
   return children;
 };
 

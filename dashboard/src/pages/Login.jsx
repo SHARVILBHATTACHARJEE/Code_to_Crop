@@ -15,8 +15,8 @@ export default function Login() {
     e.preventDefault();
     setLoading(true);
     try {
-      const user = await officerLogin(mobile, password);
-      login(user);
+      const { user, token } = await officerLogin(mobile, password);
+      login(user, token);
       navigate('/');
     } catch (err) {
       alert(err.message || 'Login failed');

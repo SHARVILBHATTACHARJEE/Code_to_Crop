@@ -10,17 +10,24 @@ export const officerLogin = async (mobile, password) => {
 
   const ref  = doc(db, "officers", mobile);
   const snap = await getDoc(ref);
-  if (snap.exists()) return snap.data();
 
-  const officer = {
-    id: mobile, mobile,
-    name: "Demo Officer",
-    role: "Officer",
-    centerId: "center_karnal",
-    centerName: "Mandi Samiti, Karnal",
-  };
-  await setDoc(ref, officer);
-  return officer;
+  let officer;
+  if (snap.exists()) {
+    officer = snap.data();
+  } else {
+    officer = {
+      id: mobile, mobile,
+      name: "Demo Officer",
+      role: "Officer",
+      centerId: "center_karnal",
+      centerName: "Mandi Samiti, Karnal",
+    };
+    await setDoc(ref, officer);
+  }
+
+  // Generate a simple demo token (not a real JWT — Firestore is the auth source)
+  const token = btoa(`${mobile}:${Date.now()}`);
+  return { user: officer, token };
 };
 
 export const updateBookingStatus = async (bookingId, status, officerName) => {

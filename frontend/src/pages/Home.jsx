@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getSchedules, getMyBookings } from '../api/firestore';
+import { collection, onSnapshot, query } from 'firebase/firestore';
+import { getMyBookings } from '../api/firestore';
+import { db } from '../firebase';
 import { useStore } from '../store';
 import { MapPin, Calendar, ArrowRight, LogOut, Wheat } from 'lucide-react';
 
@@ -14,20 +16,28 @@ export default function Home() {
   const [loading, setLoading]     = useState(true);
 
   useEffect(() => {
-    (async () => {
-      try {
-        const [s, b] = await Promise.all([
-          getSchedules(),
-          getMyBookings(user.id),
-        ]);
-        setSchedules(s);
-        setBookings(b);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    })();
+    const today = new Date().toISOString().split('T')[0];
+
+    // Real-time listener — new schedules from officer dashboard appear instantly
+    const unsub = onSnapshot(
+      query(collection(db, 'schedules')),
+      (snap) => {
+        const data = snap.docs
+          .map((d) => ({ id: d.id, ...d.data() }))
+          .filter((s) => s.date >= today)
+          .sort((a, b) => a.date.localeCompare(b.date));
+        setSchedules(data);
+      },
+      (err) => console.error('schedules snapshot error:', err)
+    );
+
+    // One-time fetch for farmer's own bookings
+    getMyBookings(user.id)
+      .then(setBookings)
+      .catch(console.error)
+      .finally(() => setLoading(false));
+
+    return () => unsub();
   }, [user.id]);
 
   const statusColor = (status) => {

@@ -41,13 +41,12 @@ export const verifyOtpAndLogin = async (mobile, otp, name) => {
 // ─────────────────────────────────────────────
 export const getSchedules = async () => {
   const today = new Date().toISOString().split("T")[0];
-  const q = query(
-    collection(db, "schedules"),
-    where("date", ">=", today),
-    orderBy("date", "asc")
-  );
-  const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  // No orderBy → no composite index needed; filter + sort client-side
+  const snap = await getDocs(collection(db, "schedules"));
+  return snap.docs
+    .map((d) => ({ id: d.id, ...d.data() }))
+    .filter((s) => s.date >= today)
+    .sort((a, b) => a.date.localeCompare(b.date));
 };
 
 // ─────────────────────────────────────────────
@@ -99,13 +98,19 @@ export const bookSlot = async (farmerId, farmerName, scheduleId, quantityKg, slo
 };
 
 export const getMyBookings = async (farmerId) => {
+  // No orderBy → no composite index needed; sort client-side
   const q = query(
     collection(db, "bookings"),
-    where("farmerId", "==", farmerId),
-    orderBy("createdAt", "desc")
+    where("farmerId", "==", farmerId)
   );
   const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  return snap.docs
+    .map((d) => ({ id: d.id, ...d.data() }))
+    .sort((a, b) => {
+      const ta = a.createdAt?.seconds ?? 0;
+      const tb = b.createdAt?.seconds ?? 0;
+      return tb - ta; // newest first
+    });
 };
 
 export const getBookingById = async (bookingId) => {

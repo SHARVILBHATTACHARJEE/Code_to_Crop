@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
 import { updateBookingStatus, createSchedule } from '../api/firestore';
 import { useStore } from '../store';
@@ -34,19 +34,30 @@ export default function QueueView() {
   });
 
   useEffect(() => {
-    const today = new Date().toISOString().split('T')[0];
-    // Real-time Firestore listener — replaces Socket.io
+    // Fetch all bookings for this center, real-time
+    // No date filter so demo data (future dates) shows up correctly
     const q = query(
       collection(db, 'bookings'),
       where('centerId', '==', user.centerId),
-      where('date', '==', today)
+      orderBy('date', 'asc')
     );
-    const unsub = onSnapshot(q, (snap) => {
-      const data = snap.docs
-        .map((d) => ({ id: d.id, ...d.data() }))
-        .sort((a, b) => a.slotTime.localeCompare(b.slotTime));
-      setBookings(data);
-    });
+    const unsub = onSnapshot(
+      q,
+      (snap) => {
+        const data = snap.docs
+          .map((d) => ({ id: d.id, ...d.data() }))
+          .sort((a, b) =>
+            a.date === b.date
+              ? (a.slotTime || '').localeCompare(b.slotTime || '')
+              : a.date.localeCompare(b.date)
+          );
+        setBookings(data);
+      },
+      (err) => {
+        console.error('Firestore onSnapshot error:', err);
+        // If index is missing, Firestore provides a link in the console to create it
+      }
+    );
     return () => unsub();
   }, [user.centerId]);
 
@@ -133,8 +144,8 @@ export default function QueueView() {
       <main className="flex-1 flex flex-col h-full overflow-hidden">
         <header className="bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center shrink-0">
           <h2 className="text-lg font-bold text-slate-800">
-            Today's Queue
-            <span className="ml-2 text-sm font-normal text-slate-400">({new Date().toLocaleDateString('en-IN')})</span>
+            All Bookings
+            <span className="ml-2 text-sm font-normal text-slate-400">({bookings.length} total)</span>
           </h2>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
@@ -151,6 +162,7 @@ export default function QueueView() {
             <table className="w-full text-sm text-left">
               <thead className="bg-slate-50 border-b border-slate-200 text-xs uppercase text-slate-500 tracking-wider">
                 <tr>
+                  <th className="px-6 py-3">Date</th>
                   <th className="px-6 py-3">Time</th>
                   <th className="px-6 py-3">Token</th>
                   <th className="px-6 py-3">Farmer</th>
@@ -162,8 +174,9 @@ export default function QueueView() {
               <tbody className="divide-y divide-slate-100">
                 {filtered.length === 0 ? (
                   <tr>
-                    <td colSpan="6" className="text-center py-12 text-slate-400">
-                      No farmers in queue for today.
+                    <td colSpan="7" className="text-center py-12 text-slate-400">
+                      No bookings found for this center.<br />
+                      <span className="text-xs mt-1 block">Make sure farmers have booked slots, or check the browser console for Firestore index errors.</span>
                     </td>
                   </tr>
                 ) : filtered.map((b) => {
@@ -171,6 +184,7 @@ export default function QueueView() {
                   const nextStage = curIdx < STAGES.length - 1 ? STAGES[curIdx + 1] : null;
                   return (
                     <tr key={b.id} className="hover:bg-slate-50 transition">
+                      <td className="px-6 py-4 text-slate-500 text-xs">{b.date}</td>
                       <td className="px-6 py-4 font-medium">{b.slotTime}</td>
                       <td className="px-6 py-4 font-black text-blue-600 tracking-wider">{b.tokenNumber}</td>
                       <td className="px-6 py-4">

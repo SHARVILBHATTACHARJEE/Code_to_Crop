@@ -299,12 +299,19 @@ function TableCard({ headers, rows, total, filtered }) {
          style={{ boxShadow: '0 4px 24px rgba(0,0,0,0.03)' }}>
       <div className="overflow-x-auto">
         <div style={{ minWidth: 1040 }}>
-          {/* Header */}
-          <div className="grid items-center bg-slate-50/90 px-6 py-3.5 border-b border-slate-200
-                          text-[11px] font-semibold tracking-wider text-slate-500 uppercase select-none"
+          {/* Header — gap-4 MUST match every data row exactly */}
+          <div className="grid items-center bg-slate-50/90 px-6 py-3 border-b border-slate-200
+                          text-[11px] font-semibold tracking-wider text-slate-500 uppercase select-none gap-4"
                style={{ gridTemplateColumns: headers.map(h => h.span).join(' ') }}>
             {headers.map(h => (
-              <div key={h.label} className={h.align === 'right' ? 'text-right pr-2' : h.align === 'center' ? 'text-center' : ''}>{h.label}</div>
+              <div key={h.label}
+                   className={
+                     h.align === 'right'  ? 'flex items-center justify-end'    :
+                     h.align === 'center' ? 'flex items-center justify-center' :
+                                            'flex items-center'
+                   }>
+                {h.label}
+              </div>
             ))}
           </div>
           {/* Body */}
@@ -426,12 +433,18 @@ function AllBookings({ bookings, search, setSearch, handleStatusUpdate, stats })
       <div key={b.id}
            className={`grid items-center px-6 py-4 hover:bg-slate-50/70 transition-colors gap-4 ${rowBg(b.status)}`}
            style={{ gridTemplateColumns: COLS.map(c => c.span).join(' ') }}>
-        <div>
-          <span className="font-medium text-slate-800 block text-xs">{b.date}</span>
-          <span className="text-[11px] text-slate-400 font-mono">{b.slotTime}</span>
+        {/* Date & Time — left */}
+        <div className="flex flex-col justify-center">
+          <span className="font-medium text-slate-800 text-xs">{b.date || '—'}</span>
+          <span className="text-[11px] text-slate-400 font-mono">{b.slotTime || '—'}</span>
         </div>
-        <TokenBadge token={b.tokenNumber} />
+        {/* Token — left */}
+        <div className="flex items-center">
+          <TokenBadge token={b.tokenNumber} />
+        </div>
+        {/* Farmer — left */}
         <FarmerCell name={b.farmerName} sub={b.farmerId} />
+        {/* Produce — left */}
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 rounded-md bg-amber-50 text-amber-800 flex items-center justify-center shrink-0">{Icon.crop}</div>
           <div>
@@ -439,8 +452,12 @@ function AllBookings({ bookings, search, setSearch, handleStatusUpdate, stats })
             <span className="font-bold text-slate-900 text-xs">{b.quantityKg} kg</span>
           </div>
         </div>
-        <StatusPill status={b.status} />
-        <div className="text-right">
+        {/* Status — left */}
+        <div className="flex items-center">
+          <StatusPill status={b.status} />
+        </div>
+        {/* Action — right */}
+        <div className="flex items-center justify-end">
           {nextStage ? (
             <button onClick={() => handleStatusUpdate(b.id, nextStage)}
                     className="inline-flex items-center gap-1 bg-slate-900 hover:bg-slate-800 active:scale-95
@@ -496,64 +513,59 @@ function WeighbridgeStation({ bookings, search, setSearch, handleStatusUpdate, s
   ];
 
   const rows = filtered.map(b => {
-    const curIdx    = STAGES.indexOf(b.status);
-    const nextStage = curIdx < STAGES.length - 1 ? STAGES[curIdx + 1] : null;
-    const qty       = Number(b.quantityKg || 0);
-    const loaded    = Math.round(qty * 4.84);
-    const unloaded  = Math.round(qty * 3.84);
-    const weighed   = b.status !== 'Queued';
+    const qty      = Number(b.quantityKg || 0);
+    const loaded   = Math.round(qty * 4.84);
+    const unloaded = Math.round(qty * 3.84);
+    const weighed  = b.status !== 'Queued';
 
     return (
       <div key={b.id}
-           className={`grid items-center px-6 py-5 hover:bg-slate-50/70 transition-colors gap-5 ${b.status === 'Queued' ? 'bg-amber-50/20' : ''}`}
+           className={`grid items-center px-6 py-4 hover:bg-slate-50/70 transition-colors gap-4 ${b.status === 'Queued' ? 'bg-amber-50/20' : ''}`}
            style={{ gridTemplateColumns: COLS.map(c => c.span).join(' ') }}>
 
-        {/* Token */}
-        <TokenBadge token={b.tokenNumber} />
+        {/* Token — left */}
+        <div className="flex items-center"><TokenBadge token={b.tokenNumber} /></div>
 
-        {/* Farmer */}
+        {/* Farmer — left */}
         <FarmerCell name={b.farmerName} sub={b.farmerId} />
 
-        {/* Produce */}
+        {/* Produce — left */}
         <CropCell type={b.cropType} />
 
-        {/* Loaded */}
-        <div className="text-right">
-          <span className="font-semibold text-slate-700 text-sm font-mono">{loaded.toLocaleString()}</span>
-          <span className="text-slate-400 text-[10px] block mt-0.5">kg</span>
+        {/* Loaded — right */}
+        <div className="flex flex-col items-end justify-center">
+          <span className="font-semibold text-slate-800 text-sm font-mono">{loaded.toLocaleString()}</span>
+          <span className="text-slate-400 text-[10px]">kg</span>
         </div>
 
-        {/* Unloaded */}
-        <div className="text-right">
-          <span className="font-semibold text-slate-700 text-sm font-mono">{unloaded.toLocaleString()}</span>
-          <span className="text-slate-400 text-[10px] block mt-0.5">kg</span>
+        {/* Unloaded — right */}
+        <div className="flex flex-col items-end justify-center">
+          <span className="font-semibold text-slate-800 text-sm font-mono">{unloaded.toLocaleString()}</span>
+          <span className="text-slate-400 text-[10px]">kg</span>
         </div>
 
-        {/* Net — boldest */}
-        <div className="text-right">
+        {/* Net — right, boldest */}
+        <div className="flex flex-col items-end justify-center">
           <span className="font-bold text-slate-900 text-sm font-mono">{qty}</span>
-          <span className="text-slate-400 text-[10px] block mt-0.5">kg net</span>
+          <span className="text-slate-400 text-[10px]">kg net</span>
         </div>
 
-        {/* Weight Cert */}
+        {/* Weight Cert — center */}
         <div className="flex items-center justify-center gap-2">
           {weighed ? (
-            <>
-              <ImgChip name={`SCALE_${b.tokenNumber?.slice(-2) || '00'}.JPG`} />
-              <ViewBtn />
-            </>
+            <><ImgChip name={`SCALE_${b.tokenNumber?.slice(-2) || '00'}.JPG`} /><ViewBtn /></>
           ) : (
             <UploadBtn label="UPLOAD READOUT" />
           )}
         </div>
 
-        {/* Status */}
-        <div className="flex justify-center">
+        {/* Status — center */}
+        <div className="flex items-center justify-center">
           <StatusPill status={weighed ? 'Weighed' : 'Queued'} small />
         </div>
 
-        {/* Action */}
-        <div className="flex justify-end">
+        {/* Action — right */}
+        <div className="flex items-center justify-end">
           {b.status === 'Queued' ? (
             <button onClick={() => handleStatusUpdate(b.id, 'Weighed')}
                     className="inline-flex items-center gap-1 bg-blue-600 hover:bg-blue-500 active:scale-95
@@ -614,58 +626,57 @@ function QCLab({ bookings, search, setSearch, handleStatusUpdate, stats }) {
     const active = b.status === 'Weighed';
     return (
       <div key={b.id}
-           className={`grid items-center px-6 py-5 hover:bg-slate-50/70 transition-colors gap-5 ${active ? 'bg-amber-50/20' : ''}`}
+           className={`grid items-center px-6 py-4 hover:bg-slate-50/70 transition-colors gap-4 ${active ? 'bg-amber-50/20' : ''}`}
            style={{ gridTemplateColumns: COLS.map(c => c.span).join(' ') }}>
 
-        {/* Token */}
-        <TokenBadge token={b.tokenNumber} />
+        {/* Token — left */}
+        <div className="flex items-center"><TokenBadge token={b.tokenNumber} /></div>
 
-        {/* Farmer */}
+        {/* Farmer — left */}
         <FarmerCell name={b.farmerName} sub={b.farmerId} />
 
-        {/* Produce */}
+        {/* Produce — left */}
         <CropCell type={b.cropType} />
 
-        {/* Moisture */}
-        <div className="flex justify-center">
+        {/* Moisture — center */}
+        <div className="flex items-center justify-center">
           {active ? (
-            <input defaultValue="12.4" className="w-16 px-1.5 py-1.5 text-sm border border-slate-200 rounded font-mono
-                                                   text-center font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20" />
+            <input defaultValue="12.4" className="w-16 px-1.5 py-1 text-sm border border-slate-200 rounded
+                                                   font-mono text-center font-semibold bg-white
+                                                   focus:outline-none focus:ring-2 focus:ring-blue-500/20" />
           ) : (
             <span className="font-semibold text-slate-800 text-sm font-mono">11.8%</span>
           )}
         </div>
 
-        {/* Foreign */}
-        <div className="flex justify-center">
+        {/* Foreign — center */}
+        <div className="flex items-center justify-center">
           {active ? (
-            <input defaultValue="0.8" className="w-16 px-1.5 py-1.5 text-sm border border-slate-200 rounded font-mono
-                                                  text-center font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20" />
+            <input defaultValue="0.8" className="w-16 px-1.5 py-1 text-sm border border-slate-200 rounded
+                                                  font-mono text-center font-semibold bg-white
+                                                  focus:outline-none focus:ring-2 focus:ring-blue-500/20" />
           ) : (
             <span className="font-semibold text-slate-800 text-sm font-mono">0.4%</span>
           )}
         </div>
 
-        {/* Grade */}
-        <div className="flex justify-center">
+        {/* Grade — center */}
+        <div className="flex items-center justify-center">
           {active ? (
-            <select className="text-sm px-2 py-1.5 border border-slate-200 rounded bg-white font-semibold text-slate-800
-                               focus:outline-none focus:ring-2 focus:ring-blue-500/20">
+            <select className="text-xs px-2 py-1 border border-slate-200 rounded bg-white font-semibold
+                               text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
               <option>Grade A</option><option>Grade B</option><option>Grade C</option>
             </select>
           ) : (
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold
                              bg-emerald-50 text-emerald-700 border border-emerald-200/70">Grade A</span>
           )}
         </div>
 
-        {/* QC Cert Image */}
+        {/* QC Cert Image — center */}
         <div className="flex items-center justify-center gap-2">
           {qcDone ? (
-            <>
-              <ImgChip name={`QC_${b.cropType?.toUpperCase() || 'CERT'}_01.JPG`} />
-              <ViewBtn />
-            </>
+            <><ImgChip name={`QC_${b.cropType?.toUpperCase() || 'CERT'}_01.JPG`} /><ViewBtn /></>
           ) : active ? (
             <UploadBtn label="UPLOAD QC REPORT" />
           ) : (
@@ -673,13 +684,13 @@ function QCLab({ bookings, search, setSearch, handleStatusUpdate, stats }) {
           )}
         </div>
 
-        {/* Status */}
-        <div className="flex justify-center">
+        {/* Status — center */}
+        <div className="flex items-center justify-center">
           <StatusPill status={active ? 'Quality Checked' : qcDone ? 'Quality Checked' : b.status} small />
         </div>
 
-        {/* Action */}
-        <div className="flex justify-end">
+        {/* Action — right */}
+        <div className="flex items-center justify-end">
           {active ? (
             <button onClick={() => handleStatusUpdate(b.id, 'Quality Checked')}
                     className="inline-flex items-center gap-1 bg-blue-600 hover:bg-blue-500 active:scale-95
@@ -750,45 +761,45 @@ function PaymentSettlement({ bookings, search, setSearch, handleStatusUpdate, st
 
     return (
       <div key={b.id}
-           className={`grid items-center px-6 py-5 hover:bg-slate-50/70 transition-colors gap-5 ${ready ? 'bg-amber-50/20' : ''}`}
+           className={`grid items-center px-6 py-4 hover:bg-slate-50/70 transition-colors gap-4 ${ready ? 'bg-amber-50/20' : ''}`}
            style={{ gridTemplateColumns: COLS.map(c => c.span).join(' ') }}>
 
-        {/* Token */}
-        <TokenBadge token={b.tokenNumber} />
+        {/* Token — left */}
+        <div className="flex items-center"><TokenBadge token={b.tokenNumber} /></div>
 
-        {/* Farmer & Account */}
+        {/* Farmer & Account — left */}
         <FarmerCell name={b.farmerName} sub={`${bankAbbr} •••• ${String(b.farmerId || '0000').slice(-4)}`} />
 
-        {/* Produce */}
+        {/* Produce — left */}
         <CropCell type={b.cropType} />
 
-        {/* Qty */}
-        <div className="text-right">
+        {/* Qty — right */}
+        <div className="flex flex-col items-end justify-center">
           <span className="font-semibold text-slate-800 text-sm">{qty}</span>
-          <span className="text-slate-400 text-[11px] ml-0.5">kg</span>
+          <span className="text-slate-400 text-[10px]">kg</span>
         </div>
 
-        {/* Rate — clearly visible */}
-        <div className="text-right">
+        {/* Rate — right */}
+        <div className="flex flex-col items-end justify-center">
           <span className="font-semibold text-slate-700 text-sm font-mono">₹{rate.toFixed(2)}</span>
-          <span className="text-slate-400 text-[10px] block mt-0.5">per kg</span>
+          <span className="text-slate-400 text-[10px]">per kg</span>
         </div>
 
-        {/* Total — bold */}
-        <div className="text-right">
+        {/* Total — right */}
+        <div className="flex items-center justify-end">
           <span className="font-bold text-slate-900 text-sm font-mono">₹{total.toLocaleString()}</span>
         </div>
 
-        {/* Payable — color-highlighted badge */}
-        <div className="text-right">
+        {/* Payable — right, highlighted */}
+        <div className="flex items-center justify-end">
           {paid ? (
-            <span className="inline-block bg-emerald-50 border border-emerald-200 text-emerald-700
-                             font-bold text-sm font-mono px-3 py-1 rounded-lg tracking-tight">
+            <span className="bg-emerald-50 border border-emerald-200 text-emerald-700
+                             font-bold text-sm font-mono px-2.5 py-1 rounded-lg">
               ₹{total.toLocaleString()}
             </span>
           ) : ready ? (
-            <span className="inline-block bg-amber-50 border border-amber-200 text-amber-700
-                             font-bold text-sm font-mono px-3 py-1 rounded-lg tracking-tight">
+            <span className="bg-amber-50 border border-amber-200 text-amber-700
+                             font-bold text-sm font-mono px-2.5 py-1 rounded-lg">
               ₹{total.toLocaleString()}
             </span>
           ) : (
@@ -796,18 +807,17 @@ function PaymentSettlement({ bookings, search, setSearch, handleStatusUpdate, st
           )}
         </div>
 
-        {/* Status */}
-        <div className="flex justify-center">
+        {/* Status — center */}
+        <div className="flex items-center justify-center">
           <StatusPill status={paid ? 'Paid' : ready ? 'Approved' : b.status} small />
         </div>
 
-        {/* Action */}
-        <div className="flex justify-end">
+        {/* Action — right */}
+        <div className="flex items-center justify-end">
           {ready ? (
-            <button
-              onClick={() => handleStatusUpdate(b.id, 'Payment Initiated')}
-              className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-3 py-2
-                         rounded-lg shadow-sm flex items-center gap-1.5 transition-colors whitespace-nowrap">
+            <button onClick={() => handleStatusUpdate(b.id, 'Payment Initiated')}
+                    className="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white
+                               text-xs font-bold px-3 py-2 rounded-lg shadow-sm transition-colors whitespace-nowrap">
               <span>⚡</span><span>TRIGGER DBT</span>
             </button>
           ) : paid ? (
@@ -822,6 +832,8 @@ function PaymentSettlement({ bookings, search, setSearch, handleStatusUpdate, st
       </div>
     );
   });
+
+
 
   const totalPaid = filtered
     .filter(b => b.status === 'Paid')

@@ -98,53 +98,53 @@ function Sidebar({ user, stats, volumePct, activeView, setView, showForm, setSho
 
   return (
     <aside
-      className="w-72 flex flex-col justify-between p-5 text-white shrink-0 select-none border-r border-slate-800/80"
-      style={{ background: '#090D16' }}
+      className="w-72 flex flex-col justify-between p-5 text-white shrink-0 select-none border-r border-slate-800/60"
+      style={{ background: '#0B1120' }}
     >
       <div className="space-y-5">
         {/* Brand */}
         <div className="flex items-center gap-3 px-1.5 pt-1">
-          <div className="h-9 w-9 rounded-xl flex items-center justify-center shadow-lg ring-1 ring-white/20"
-               style={{ background: 'linear-gradient(135deg,#2563EB,#34d399)', boxShadow: '0 4px 14px rgba(37,99,235,.35)' }}>
+          <div className="h-9 w-9 rounded-xl flex items-center justify-center shadow-lg ring-1 ring-white/10"
+               style={{ background: 'linear-gradient(135deg,#2563EB,#34d399)', boxShadow: '0 4px 14px rgba(37,99,235,.25)' }}>
             {Icon.leaf}
           </div>
           <div>
             <div className="flex items-center gap-1.5">
               <span className="font-bold tracking-tight text-base text-white">FarmConnect</span>
               <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold
-                               bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">HQ</span>
+                               bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">HQ</span>
             </div>
             <p className="text-[11px] text-slate-400">Officer Portal • {user.centerName || 'Mandi Central'}</p>
           </div>
         </div>
 
         {/* Officer card */}
-        <div className="rounded-xl p-3.5 border border-slate-700/60 shadow-sm backdrop-blur-sm"
-             style={{ background: 'rgba(19,27,46,0.9)' }}>
+        <div className="rounded-xl p-3.5 border border-slate-800/80 shadow-sm backdrop-blur-sm"
+             style={{ background: 'rgba(25,33,48,0.4)' }}>
           <div className="flex items-center gap-3">
             <div className="relative">
               <div className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-semibold
-                             text-white tracking-wider border border-white/20"
+                             text-white tracking-wider border border-white/10 shadow-inner"
                    style={{ background: 'linear-gradient(135deg,#3b82f6,#4f46e5)' }}>
                 {initials}
               </div>
-              <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-400 rounded-full ring-2 ring-[#131B2E] animate-pulse" />
+              <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-400 rounded-full ring-2 ring-[#0B1120] animate-pulse" />
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-medium tracking-wider text-slate-400 uppercase">Officer</span>
-                <span className="text-[10px] font-mono font-medium text-slate-400 bg-slate-800/80
+                <span className="text-[10px] font-medium tracking-widest text-slate-400 uppercase">Officer</span>
+                <span className="text-[10px] font-mono font-medium text-slate-400 bg-slate-800/50
                                  px-1.5 py-0.5 rounded border border-slate-700/50">{odId}</span>
               </div>
-              <h4 className="text-sm font-semibold text-white truncate">{user.name}</h4>
+              <h4 className="text-sm font-semibold text-white truncate mt-0.5">{user.name}</h4>
               <p className="text-[11px] text-slate-400 truncate">{user.centerName}</p>
             </div>
           </div>
         </div>
 
         {/* Stats panel */}
-        <div className="rounded-xl p-4 space-y-3.5 border border-slate-800/80"
-             style={{ background: 'rgba(19,27,46,0.6)' }}>
+        <div className="rounded-xl p-4 space-y-3.5 border border-slate-800/60"
+             style={{ background: 'rgba(25,33,48,0.3)' }}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-blue-400 animate-ping" />
@@ -234,11 +234,11 @@ function Sidebar({ user, stats, volumePct, activeView, setView, showForm, setSho
 /** Shared page header with search + filter + export */
 function PageHeader({ title, subtitle, badge, search, setSearch }) {
   return (
-    <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-200/70">
+    <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-200/60">
       <div>
         <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">{title}</h1>
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200">
+          <h1 className="text-[22px] font-bold tracking-tight text-slate-900">{title}</h1>
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-slate-100/80 text-slate-600 border border-slate-200/80">
             {badge}
           </span>
         </div>
@@ -252,20 +252,22 @@ function PageHeader({ title, subtitle, badge, search, setSearch }) {
             placeholder="Search token, farmer or crop..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="block w-full pl-9 pr-12 py-2 text-xs text-slate-800 bg-white border border-slate-200
-                       rounded-xl shadow-sm placeholder:text-slate-400 focus:outline-none focus:ring-2
-                       focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+            className="block w-full pl-9 pr-12 py-2 text-[13px] text-slate-800 bg-white border border-slate-200/80
+                       rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.02)] placeholder:text-slate-400 focus:outline-none
+                       focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
           />
           <div className="absolute inset-y-0 right-0 pr-2.5 flex items-center pointer-events-none">
-            <kbd className="text-[10px] font-mono text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">⌘K</kbd>
+            <kbd className="text-[10px] font-mono text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200/80">⌘K</kbd>
           </div>
         </div>
-        <button className="inline-flex items-center gap-2 px-3 py-2 text-xs font-medium text-slate-700
-                           bg-white border border-slate-200 rounded-xl hover:bg-slate-50 shadow-sm transition-colors">
+        <button className="inline-flex items-center gap-2 px-3 py-2 text-[13px] font-medium text-slate-700
+                           bg-white border border-slate-200/80 rounded-xl hover:bg-slate-50
+                           shadow-[0_2px_8px_rgba(0,0,0,0.02)] transition-all">
           {Icon.filter}<span>Produce: All</span>
         </button>
-        <button className="inline-flex items-center gap-2 px-3 py-2 text-xs font-medium text-slate-700
-                           bg-white border border-slate-200 rounded-xl hover:bg-slate-50 shadow-sm transition-colors">
+        <button className="inline-flex items-center gap-2 px-3 py-2 text-[13px] font-medium text-slate-700
+                           bg-white border border-slate-200/80 rounded-xl hover:bg-slate-50
+                           shadow-[0_2px_8px_rgba(0,0,0,0.02)] transition-all">
           {Icon.export}<span>Export</span>
         </button>
       </div>
@@ -278,14 +280,15 @@ function MetricsBar({ cards }) {
   return (
     <section className="grid grid-cols-2 lg:grid-cols-4 gap-4 my-6">
       {cards.map(({ label, value, unit, color, bg, iconColor, icon }) => (
-        <div key={label} className="bg-white rounded-xl p-4 border border-slate-200/80 shadow-sm flex items-center justify-between">
+        <div key={label} className="bg-white rounded-xl p-4 border border-slate-200/60 flex items-center justify-between"
+             style={{ boxShadow: '0 2px 10px rgba(0,0,0,0.015), 0 1px 2px rgba(0,0,0,0.02)' }}>
           <div>
-            <p className="text-[11px] font-medium text-slate-500 uppercase tracking-wider">{label}</p>
-            <p className={`text-xl font-bold mt-0.5 ${color}`}>
-              {value}{unit && <span className="text-xs font-normal text-slate-500 ml-1">{unit}</span>}
+            <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest">{label}</p>
+            <p className={`text-xl font-bold mt-1 ${color}`}>
+              {value}{unit && <span className="text-xs font-medium text-slate-400 ml-1.5">{unit}</span>}
             </p>
           </div>
-          <div className={`w-9 h-9 rounded-lg ${bg} ${iconColor} flex items-center justify-center`}>{icon}</div>
+          <div className={`w-10 h-10 rounded-xl ${bg} ${iconColor} flex items-center justify-center shadow-sm`}>{icon}</div>
         </div>
       ))}
     </section>
@@ -295,13 +298,13 @@ function MetricsBar({ cards }) {
 /** Table wrapper with pagination footer */
 function TableCard({ headers, rows, total, filtered }) {
   return (
-    <div className="bg-white rounded-2xl border border-slate-200/80 overflow-hidden flex flex-col"
-         style={{ boxShadow: '0 4px 24px rgba(0,0,0,0.03)' }}>
+    <div className="bg-white rounded-2xl border border-slate-200/60 overflow-hidden flex flex-col"
+         style={{ boxShadow: '0 4px 20px -2px rgba(0,0,0,0.03), 0 0 3px rgba(0,0,0,0.02)' }}>
       <div className="overflow-x-auto">
         <div style={{ minWidth: 1040 }}>
           {/* Header — gap-4 MUST match every data row exactly */}
-          <div className="grid items-center bg-slate-50/90 px-6 py-3 border-b border-slate-200
-                          text-[11px] font-semibold tracking-wider text-slate-500 uppercase select-none gap-4"
+          <div className="grid items-center bg-white px-6 py-3.5 border-b border-slate-100
+                          text-[10px] font-bold tracking-widest text-slate-400 uppercase select-none gap-4"
                style={{ gridTemplateColumns: headers.map(h => h.span).join(' ') }}>
             {headers.map(h => (
               <div key={h.label}
@@ -315,23 +318,28 @@ function TableCard({ headers, rows, total, filtered }) {
             ))}
           </div>
           {/* Body */}
-          <div className="divide-y divide-slate-100 text-xs">
+          <div className="divide-y divide-slate-100/60 text-xs">
             {rows.length === 0 ? (
-              <div className="text-center py-16 text-slate-400">
-                <p>No bookings found for this center.</p>
-                <p className="text-[11px] mt-1">Make sure farmers have booked slots or check the Firestore console for index errors.</p>
+              <div className="flex flex-col items-center justify-center py-20 text-slate-400">
+                <div className="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center mb-3 border border-slate-100">
+                  {Icon.search}
+                </div>
+                <p className="text-sm font-medium text-slate-600">No bookings found</p>
+                <p className="text-[11px] mt-1 text-slate-400 text-center max-w-sm">
+                  There are currently no records matching your criteria. Make sure farmers have booked slots for today.
+                </p>
               </div>
             ) : rows}
           </div>
         </div>
       </div>
       {/* Pagination footer */}
-      <div className="px-6 py-4 bg-slate-50/50 border-t border-slate-200/80 flex items-center justify-between text-xs text-slate-500 select-none">
-        <div>Showing <span className="font-semibold text-slate-700">1</span> to <span className="font-semibold text-slate-700">{filtered}</span> of <span className="font-semibold text-slate-700">{total}</span> bookings</div>
-        <div className="flex items-center gap-2">
-          <button disabled className="px-2.5 py-1.5 rounded-lg border border-slate-200 text-slate-400 bg-slate-100/50 cursor-not-allowed text-xs">Previous</button>
-          <span className="px-2 font-medium text-slate-700">1 of 1</span>
-          <button disabled className="px-2.5 py-1.5 rounded-lg border border-slate-200 text-slate-400 bg-slate-100/50 cursor-not-allowed text-xs">Next</button>
+      <div className="px-6 py-4 bg-white border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500 select-none">
+        <div>Showing <span className="font-semibold text-slate-700">1</span> to <span className="font-semibold text-slate-700">{filtered}</span> of <span className="font-semibold text-slate-700">{total}</span> records</div>
+        <div className="flex items-center gap-1.5">
+          <button disabled className="px-2.5 py-1.5 rounded-lg border border-slate-200/70 text-slate-400 bg-slate-50/50 cursor-not-allowed font-medium transition-colors">Previous</button>
+          <span className="px-3 font-semibold text-slate-700 bg-slate-50 border border-slate-200/50 rounded-lg py-1.5">1</span>
+          <button disabled className="px-2.5 py-1.5 rounded-lg border border-slate-200/70 text-slate-400 bg-slate-50/50 cursor-not-allowed font-medium transition-colors">Next</button>
         </div>
       </div>
     </div>
@@ -418,7 +426,7 @@ function AllBookings({ bookings, search, setSearch, handleStatusUpdate, stats })
   const COLS = [
     { label: 'Date & Time',           span: '160px', align: 'left' },
     { label: 'Token',                  span: '130px', align: 'left' },
-    { label: 'Farmer Details',         span: '1fr',   align: 'left' },
+    { label: 'Farmer Details',         span: 'minmax(0, 1fr)',   align: 'left' },
     { label: 'Produce & Net Weight',   span: '160px', align: 'left' },
     { label: 'Status',                 span: '160px', align: 'left' },
     { label: 'Action',                 span: '140px', align: 'right' },
@@ -502,7 +510,7 @@ function WeighbridgeStation({ bookings, search, setSearch, handleStatusUpdate, s
 
   const COLS = [
     { label: 'Token',           span: '120px', align: 'left'   },
-    { label: 'Farmer Details',  span: '1fr',   align: 'left'   },
+    { label: 'Farmer Details',  span: 'minmax(0, 1fr)',   align: 'left'   },
     { label: 'Produce',         span: '120px', align: 'left'   },
     { label: 'Loaded (kg)',     span: '110px', align: 'right'  },
     { label: 'Unloaded (kg)',   span: '120px', align: 'right'  },
@@ -611,7 +619,7 @@ function QCLab({ bookings, search, setSearch, handleStatusUpdate, stats }) {
 
   const COLS = [
     { label: 'Token',          span: '120px', align: 'left'   },
-    { label: 'Farmer Details', span: '1fr',   align: 'left'   },
+    { label: 'Farmer Details', span: 'minmax(0, 1fr)',   align: 'left'   },
     { label: 'Produce Type',   span: '120px', align: 'left'   },
     { label: 'Moisture (%)',   span: '110px', align: 'center' },
     { label: 'Foreign (%)',    span: '110px', align: 'center' },
@@ -739,7 +747,7 @@ function PaymentSettlement({ bookings, search, setSearch, handleStatusUpdate, st
   // No Payment Cert column — removed per user request
   const COLS = [
     { label: 'Token',            span: '120px', align: 'left'   },
-    { label: 'Farmer & Account', span: '1fr',   align: 'left'   },
+    { label: 'Farmer & Account', span: 'minmax(0, 1fr)',   align: 'left'   },
     { label: 'Produce',          span: '120px', align: 'left'   },
     { label: 'Qty (kg)',         span: '100px', align: 'right'  },
     { label: 'Rate (₹/kg)',      span: '120px', align: 'right'  },

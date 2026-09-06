@@ -484,15 +484,15 @@ function WeighbridgeStation({ bookings, search, setSearch, handleStatusUpdate, s
   );
 
   const COLS = [
-    { label: 'Token',           span: '110px', align: 'left' },
-    { label: 'Farmer Details',  span: '1fr',   align: 'left' },
-    { label: 'Produce',         span: '110px', align: 'left' },
-    { label: 'Loaded (kg)',     span: '100px', align: 'right' },
-    { label: 'Unloaded (kg)',   span: '110px', align: 'right' },
-    { label: 'Net (kg)',        span: '90px',  align: 'right' },
+    { label: 'Token',           span: '120px', align: 'left'   },
+    { label: 'Farmer Details',  span: '1fr',   align: 'left'   },
+    { label: 'Produce',         span: '120px', align: 'left'   },
+    { label: 'Loaded (kg)',     span: '110px', align: 'right'  },
+    { label: 'Unloaded (kg)',   span: '120px', align: 'right'  },
+    { label: 'Net (kg)',        span: '100px', align: 'right'  },
     { label: 'Weight Cert',     span: '190px', align: 'center' },
-    { label: 'Status',          span: '130px', align: 'center' },
-    { label: 'Action',          span: '140px', align: 'right' },
+    { label: 'Status',          span: '140px', align: 'center' },
+    { label: 'Action',          span: '150px', align: 'right'  },
   ];
 
   const rows = filtered.map(b => {
@@ -505,14 +505,37 @@ function WeighbridgeStation({ bookings, search, setSearch, handleStatusUpdate, s
 
     return (
       <div key={b.id}
-           className={`grid items-center px-6 py-4 hover:bg-slate-50/70 transition-colors ${b.status === 'Queued' ? 'bg-amber-50/20' : ''}`}
+           className={`grid items-center px-6 py-5 hover:bg-slate-50/70 transition-colors gap-5 ${b.status === 'Queued' ? 'bg-amber-50/20' : ''}`}
            style={{ gridTemplateColumns: COLS.map(c => c.span).join(' ') }}>
+
+        {/* Token */}
         <TokenBadge token={b.tokenNumber} />
+
+        {/* Farmer */}
         <FarmerCell name={b.farmerName} sub={b.farmerId} />
+
+        {/* Produce */}
         <CropCell type={b.cropType} />
-        <div className="text-right font-mono text-slate-600">{loaded.toLocaleString()}</div>
-        <div className="text-right font-mono text-slate-600">{unloaded.toLocaleString()}</div>
-        <div className="text-right font-mono font-bold text-slate-900">{qty}</div>
+
+        {/* Loaded */}
+        <div className="text-right">
+          <span className="font-semibold text-slate-700 text-sm font-mono">{loaded.toLocaleString()}</span>
+          <span className="text-slate-400 text-[10px] block mt-0.5">kg</span>
+        </div>
+
+        {/* Unloaded */}
+        <div className="text-right">
+          <span className="font-semibold text-slate-700 text-sm font-mono">{unloaded.toLocaleString()}</span>
+          <span className="text-slate-400 text-[10px] block mt-0.5">kg</span>
+        </div>
+
+        {/* Net — boldest */}
+        <div className="text-right">
+          <span className="font-bold text-slate-900 text-sm font-mono">{qty}</span>
+          <span className="text-slate-400 text-[10px] block mt-0.5">kg net</span>
+        </div>
+
+        {/* Weight Cert */}
         <div className="flex items-center justify-center gap-2">
           {weighed ? (
             <>
@@ -523,18 +546,22 @@ function WeighbridgeStation({ bookings, search, setSearch, handleStatusUpdate, s
             <UploadBtn label="UPLOAD READOUT" />
           )}
         </div>
-        <div className="text-center">
+
+        {/* Status */}
+        <div className="flex justify-center">
           <StatusPill status={weighed ? 'Weighed' : 'Queued'} small />
         </div>
-        <div className="text-right">
+
+        {/* Action */}
+        <div className="flex justify-end">
           {b.status === 'Queued' ? (
             <button onClick={() => handleStatusUpdate(b.id, 'Weighed')}
                     className="inline-flex items-center gap-1 bg-blue-600 hover:bg-blue-500 active:scale-95
-                               text-white text-xs font-medium px-3 py-1.5 rounded-lg shadow-sm transition-all">
+                               text-white text-xs font-medium px-3 py-2 rounded-lg shadow-sm transition-all">
               <span>SAVE &amp; NEXT</span><span>→</span>
             </button>
           ) : (
-            <button className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200
+            <button className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200
                                bg-slate-50 hover:bg-slate-100 text-slate-700 font-medium text-xs shadow-sm transition-colors">
               {Icon.print}<span>PRINT TICKET</span>
             </button>
@@ -571,15 +598,15 @@ function QCLab({ bookings, search, setSearch, handleStatusUpdate, stats }) {
   );
 
   const COLS = [
-    { label: 'Token',               span: '110px', align: 'left' },
-    { label: 'Farmer Details',      span: '1fr',   align: 'left' },
-    { label: 'Produce Type',        span: '110px', align: 'left' },
-    { label: 'Moisture (%)',        span: '100px', align: 'center' },
-    { label: 'Foreign (%)',         span: '100px', align: 'center' },
-    { label: 'Grade',               span: '90px',  align: 'center' },
-    { label: 'QC Cert Image',       span: '190px', align: 'center' },
-    { label: 'Status',              span: '130px', align: 'center' },
-    { label: 'Action',              span: '150px', align: 'right' },
+    { label: 'Token',          span: '120px', align: 'left'   },
+    { label: 'Farmer Details', span: '1fr',   align: 'left'   },
+    { label: 'Produce Type',   span: '120px', align: 'left'   },
+    { label: 'Moisture (%)',   span: '110px', align: 'center' },
+    { label: 'Foreign (%)',    span: '110px', align: 'center' },
+    { label: 'Grade',          span: '110px', align: 'center' },
+    { label: 'QC Cert Image',  span: '190px', align: 'center' },
+    { label: 'Status',         span: '140px', align: 'center' },
+    { label: 'Action',         span: '160px', align: 'right'  },
   ];
 
   const rows = filtered.map(b => {
@@ -587,26 +614,52 @@ function QCLab({ bookings, search, setSearch, handleStatusUpdate, stats }) {
     const active = b.status === 'Weighed';
     return (
       <div key={b.id}
-           className={`grid items-center px-6 py-4 hover:bg-slate-50/70 transition-colors ${active ? 'bg-amber-50/20' : ''}`}
+           className={`grid items-center px-6 py-5 hover:bg-slate-50/70 transition-colors gap-5 ${active ? 'bg-amber-50/20' : ''}`}
            style={{ gridTemplateColumns: COLS.map(c => c.span).join(' ') }}>
+
+        {/* Token */}
         <TokenBadge token={b.tokenNumber} />
+
+        {/* Farmer */}
         <FarmerCell name={b.farmerName} sub={b.farmerId} />
+
+        {/* Produce */}
         <CropCell type={b.cropType} />
-        <div className="text-center font-mono font-semibold text-slate-800">
-          {active ? <input defaultValue="12.4" className="w-14 px-1.5 py-1 text-xs border border-slate-200 rounded font-mono text-center bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20" /> : '11.8%'}
-        </div>
-        <div className="text-center font-mono font-semibold text-slate-800">
-          {active ? <input defaultValue="0.8" className="w-14 px-1.5 py-1 text-xs border border-slate-200 rounded font-mono text-center bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20" /> : '0.4%'}
-        </div>
-        <div className="text-center">
+
+        {/* Moisture */}
+        <div className="flex justify-center">
           {active ? (
-            <select className="text-xs px-2 py-1 border border-slate-200 rounded bg-white font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
+            <input defaultValue="12.4" className="w-16 px-1.5 py-1.5 text-sm border border-slate-200 rounded font-mono
+                                                   text-center font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20" />
+          ) : (
+            <span className="font-semibold text-slate-800 text-sm font-mono">11.8%</span>
+          )}
+        </div>
+
+        {/* Foreign */}
+        <div className="flex justify-center">
+          {active ? (
+            <input defaultValue="0.8" className="w-16 px-1.5 py-1.5 text-sm border border-slate-200 rounded font-mono
+                                                  text-center font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20" />
+          ) : (
+            <span className="font-semibold text-slate-800 text-sm font-mono">0.4%</span>
+          )}
+        </div>
+
+        {/* Grade */}
+        <div className="flex justify-center">
+          {active ? (
+            <select className="text-sm px-2 py-1.5 border border-slate-200 rounded bg-white font-semibold text-slate-800
+                               focus:outline-none focus:ring-2 focus:ring-blue-500/20">
               <option>Grade A</option><option>Grade B</option><option>Grade C</option>
             </select>
           ) : (
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/70">Grade A</span>
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold
+                             bg-emerald-50 text-emerald-700 border border-emerald-200/70">Grade A</span>
           )}
         </div>
+
+        {/* QC Cert Image */}
         <div className="flex items-center justify-center gap-2">
           {qcDone ? (
             <>
@@ -619,18 +672,22 @@ function QCLab({ bookings, search, setSearch, handleStatusUpdate, stats }) {
             <span className="text-xs text-slate-400">—</span>
           )}
         </div>
-        <div className="text-center">
+
+        {/* Status */}
+        <div className="flex justify-center">
           <StatusPill status={active ? 'Quality Checked' : qcDone ? 'Quality Checked' : b.status} small />
         </div>
-        <div className="text-right">
+
+        {/* Action */}
+        <div className="flex justify-end">
           {active ? (
             <button onClick={() => handleStatusUpdate(b.id, 'Quality Checked')}
                     className="inline-flex items-center gap-1 bg-blue-600 hover:bg-blue-500 active:scale-95
-                               text-white text-xs font-medium px-3 py-1.5 rounded-lg shadow-sm transition-all">
+                               text-white text-xs font-medium px-3 py-2 rounded-lg shadow-sm transition-all">
               <span>SAVE &amp; NEXT</span><span>→</span>
             </button>
           ) : qcDone ? (
-            <button className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200
+            <button className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200
                                bg-slate-50 hover:bg-slate-100 text-slate-700 font-medium text-xs shadow-sm transition-colors">
               {Icon.print}<span>PRINT LAB REPORT</span>
             </button>
@@ -668,68 +725,93 @@ function PaymentSettlement({ bookings, search, setSearch, handleStatusUpdate, st
     b.farmerName?.toLowerCase().includes(search.toLowerCase())
   );
 
+  // No Payment Cert column — removed per user request
   const COLS = [
-    { label: 'Token',             span: '110px', align: 'left' },
-    { label: 'Farmer & Account',  span: '1fr',   align: 'left' },
-    { label: 'Produce',           span: '100px', align: 'left' },
-    { label: 'Qty (kg)',          span: '80px',  align: 'right' },
-    { label: 'Rate (₹/kg)',       span: '90px',  align: 'right' },
-    { label: 'Total (₹)',         span: '90px',  align: 'right' },
-    { label: 'Payable (₹)',       span: '90px',  align: 'right' },
-    { label: 'Payment Cert',      span: '180px', align: 'center' },
-    { label: 'Status',            span: '120px', align: 'center' },
-    { label: 'Action',            span: '110px', align: 'right' },
+    { label: 'Token',            span: '120px', align: 'left'   },
+    { label: 'Farmer & Account', span: '1fr',   align: 'left'   },
+    { label: 'Produce',          span: '120px', align: 'left'   },
+    { label: 'Qty (kg)',         span: '100px', align: 'right'  },
+    { label: 'Rate (₹/kg)',      span: '120px', align: 'right'  },
+    { label: 'Total (₹)',        span: '130px', align: 'right'  },
+    { label: 'Payable (₹)',      span: '150px', align: 'right'  },
+    { label: 'Status',           span: '140px', align: 'center' },
+    { label: 'Action',           span: '140px', align: 'right'  },
   ];
 
   const MSP_RATES = { Wheat: 24.50, Rice: 42.00, Soybean: 48.00 };
 
   const rows = filtered.map(b => {
-    const paid   = b.status === 'Paid';
-    const ready  = b.status === 'Approved';
-    const rate   = MSP_RATES[b.cropType] || 25;
-    const qty    = Number(b.quantityKg || 0);
-    const total  = (qty * rate).toFixed(0);
-    const bankAbbr = ['HDFC','SBI','PNB','BOB','UCO'][Math.abs(b.farmerId?.charCodeAt(0) || 0) % 5];
+    const paid  = b.status === 'Paid';
+    const ready = b.status === 'Approved';
+    const rate  = MSP_RATES[b.cropType] || 25;
+    const qty   = Number(b.quantityKg || 0);
+    const total = Math.round(qty * rate);
+    const bankAbbr = ['HDFC', 'SBI', 'PNB', 'BOB', 'UCO'][Math.abs(b.farmerId?.charCodeAt(0) || 0) % 5];
 
     return (
       <div key={b.id}
-           className={`grid items-center px-6 py-4 hover:bg-slate-50/70 transition-colors ${ready ? 'bg-amber-50/20' : ''}`}
+           className={`grid items-center px-6 py-5 hover:bg-slate-50/70 transition-colors gap-5 ${ready ? 'bg-amber-50/20' : ''}`}
            style={{ gridTemplateColumns: COLS.map(c => c.span).join(' ') }}>
+
+        {/* Token */}
         <TokenBadge token={b.tokenNumber} />
+
+        {/* Farmer & Account */}
         <FarmerCell name={b.farmerName} sub={`${bankAbbr} •••• ${String(b.farmerId || '0000').slice(-4)}`} />
+
+        {/* Produce */}
         <CropCell type={b.cropType} />
-        <div className="text-right font-mono text-slate-600">{qty}</div>
-        <div className="text-right font-mono text-slate-600">₹{rate.toFixed(2)}</div>
-        <div className="text-right font-mono text-slate-600">₹{Number(total).toLocaleString()}</div>
-        <div className="text-right font-mono font-bold text-slate-900">₹{Number(total).toLocaleString()}</div>
-        <div className="flex items-center justify-center gap-1.5">
+
+        {/* Qty */}
+        <div className="text-right">
+          <span className="font-semibold text-slate-800 text-sm">{qty}</span>
+          <span className="text-slate-400 text-[11px] ml-0.5">kg</span>
+        </div>
+
+        {/* Rate — clearly visible */}
+        <div className="text-right">
+          <span className="font-semibold text-slate-700 text-sm font-mono">₹{rate.toFixed(2)}</span>
+          <span className="text-slate-400 text-[10px] block mt-0.5">per kg</span>
+        </div>
+
+        {/* Total — bold */}
+        <div className="text-right">
+          <span className="font-bold text-slate-900 text-sm font-mono">₹{total.toLocaleString()}</span>
+        </div>
+
+        {/* Payable — color-highlighted badge */}
+        <div className="text-right">
           {paid ? (
-            <>
-              <ImgChip name={`INV_DBT_${b.tokenNumber?.slice(-4) || '0000'}.PDF`} />
-              <ViewBtn />
-            </>
+            <span className="inline-block bg-emerald-50 border border-emerald-200 text-emerald-700
+                             font-bold text-sm font-mono px-3 py-1 rounded-lg tracking-tight">
+              ₹{total.toLocaleString()}
+            </span>
           ) : ready ? (
-            <div className="border border-dashed border-amber-400 bg-amber-50/70 hover:bg-amber-100/60 rounded px-2 py-1.5
-                            flex items-center gap-1.5 text-xs font-semibold text-amber-800 cursor-pointer">
-              <span>📷</span>
-              <span className="text-[10px] truncate">UPLOAD PAYMENT CONF.</span>
-            </div>
+            <span className="inline-block bg-amber-50 border border-amber-200 text-amber-700
+                             font-bold text-sm font-mono px-3 py-1 rounded-lg tracking-tight">
+              ₹{total.toLocaleString()}
+            </span>
           ) : (
-            <span className="text-xs text-slate-400">—</span>
+            <span className="font-bold text-slate-500 text-sm font-mono">₹{total.toLocaleString()}</span>
           )}
         </div>
-        <div className="text-center">
+
+        {/* Status */}
+        <div className="flex justify-center">
           <StatusPill status={paid ? 'Paid' : ready ? 'Approved' : b.status} small />
         </div>
-        <div className="text-right">
+
+        {/* Action */}
+        <div className="flex justify-end">
           {ready ? (
-            <button onClick={() => handleStatusUpdate(b.id, 'Payment Initiated')}
-                    className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg
-                               shadow-sm flex items-center gap-1.5 transition-colors whitespace-nowrap">
+            <button
+              onClick={() => handleStatusUpdate(b.id, 'Payment Initiated')}
+              className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-3 py-2
+                         rounded-lg shadow-sm flex items-center gap-1.5 transition-colors whitespace-nowrap">
               <span>⚡</span><span>TRIGGER DBT</span>
             </button>
           ) : paid ? (
-            <button className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-slate-200
+            <button className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200
                                bg-slate-50 hover:bg-slate-100 text-slate-700 font-medium text-xs shadow-sm transition-colors">
               {Icon.receipt}<span>RECEIPT</span>
             </button>
@@ -741,13 +823,15 @@ function PaymentSettlement({ bookings, search, setSearch, handleStatusUpdate, st
     );
   });
 
-  const totalPaid = filtered.filter(b => b.status === 'Paid').reduce((s, b) => s + Number(b.quantityKg || 0) * (MSP_RATES[b.cropType] || 25), 0);
+  const totalPaid = filtered
+    .filter(b => b.status === 'Paid')
+    .reduce((s, b) => s + Number(b.quantityKg || 0) * (MSP_RATES[b.cropType] || 25), 0);
 
   const metricCards = [
-    { label: 'Total Settled',        value: `₹${Math.round(totalPaid).toLocaleString()}`, unit: '',       color: 'text-slate-900',   bg: 'bg-emerald-50', iconColor: 'text-emerald-600', icon: <span className="font-bold text-base">₹</span> },
-    { label: 'Payments in Process',  value: String(stats.pendingWeigh), unit: 'active',   color: 'text-amber-600',   bg: 'bg-amber-50',   iconColor: 'text-amber-600',  icon: Icon.clock },
-    { label: 'Awaiting Bank Conf.',  value: String(stats.pendingQC),    unit: 'lot',      color: 'text-purple-600',  bg: 'bg-purple-50',  iconColor: 'text-purple-600', icon: Icon.shield },
-    { label: 'Avg. Payout Cycle',    value: '4.2',                      unit: 'hrs',      color: 'text-blue-600',    bg: 'bg-blue-50',    iconColor: 'text-blue-600',   icon: Icon.bolt },
+    { label: 'Total Settled',       value: `₹${Math.round(totalPaid).toLocaleString()}`, unit: '',       color: 'text-emerald-700', bg: 'bg-emerald-50', iconColor: 'text-emerald-600', icon: <span className="font-bold text-base">₹</span> },
+    { label: 'Payments in Process', value: String(stats.pendingWeigh), unit: 'active',   color: 'text-amber-600',   bg: 'bg-amber-50',   iconColor: 'text-amber-600',  icon: Icon.clock },
+    { label: 'Awaiting Bank Conf.', value: String(stats.pendingQC),    unit: 'lot',      color: 'text-purple-600',  bg: 'bg-purple-50',  iconColor: 'text-purple-600', icon: Icon.shield },
+    { label: 'Avg. Payout Cycle',   value: '4.2',                      unit: 'hrs',      color: 'text-blue-600',    bg: 'bg-blue-50',    iconColor: 'text-blue-600',   icon: Icon.bolt },
   ];
 
   return (

@@ -20,12 +20,12 @@ function getInitials(name = '') {
 }
 
 const AVATAR_PALETTE = [
-  'bg-indigo-50 border-indigo-200/80 text-indigo-700',
-  'bg-amber-50  border-amber-200/80  text-amber-700',
-  'bg-emerald-50 border-emerald-200/80 text-emerald-700',
-  'bg-purple-50 border-purple-200/80 text-purple-700',
-  'bg-blue-50   border-blue-200/80   text-blue-700',
-  'bg-rose-50   border-rose-200/80   text-rose-700',
+  'bg-[#F7ECD4] border-[#E7CF9E] text-[#8A5A12]',
+  'bg-[#F7E3D3] border-[#E8BFA4] text-[#933515]',
+  'bg-[#E9EDDB] border-[#CFD8B8] text-[#44532F]',
+  'bg-[#ECE7EE] border-[#D3C8DB] text-[#5D4A6B]',
+  'bg-[#E4EBF0] border-[#C3D2DC] text-[#37556E]',
+  'bg-[#F1DFB8] border-[#DDBE7E] text-[#7A4E0D]',
 ];
 function avatarColor(name = '') {
   let h = 0;
@@ -37,15 +37,15 @@ function avatarColor(name = '') {
    STATUS PILL
 ───────────────────────────────────────────── */
 const STATUS_CONFIG = {
-  Queued:              { pill: 'bg-amber-50 text-amber-700 border-amber-200/70',   dot: 'bg-amber-500' },
-  Weighed:             { pill: 'bg-blue-50 text-blue-700 border-blue-200/70',      dot: 'bg-blue-500' },
-  'Quality Checked':   { pill: 'bg-purple-50 text-purple-700 border-purple-200/70', dot: 'bg-purple-500' },
-  Approved:            { pill: 'bg-yellow-50 text-yellow-700 border-yellow-200/70', dot: 'bg-yellow-500' },
-  'Payment Initiated': { pill: 'bg-orange-50 text-orange-700 border-orange-200/70', dot: 'bg-orange-500' },
-  Paid:                { pill: 'bg-emerald-50 text-emerald-700 border-emerald-200/70', dot: 'bg-emerald-500' },
+  Queued:              { pill: 'bg-[#F7ECD4] text-[#8A5A12] border-[#E7CF9E]',   dot: 'bg-[#C07A1A]' },
+  Weighed:             { pill: 'bg-[#E4EBF0] text-[#37556E] border-[#C3D2DC]',      dot: 'bg-[#3E6B8C]' },
+  'Quality Checked':   { pill: 'bg-[#ECE7EE] text-[#5D4A6B] border-[#D3C8DB]', dot: 'bg-[#6D5A7B]' },
+  Approved:            { pill: 'bg-[#F1DFB8] text-[#7A4E0D] border-[#DDBE7E]', dot: 'bg-[#8A5A12]' },
+  'Payment Initiated': { pill: 'bg-[#F7E3D3] text-[#933515] border-[#E8BFA4]', dot: 'bg-[#B4431F]' },
+  Paid:                { pill: 'bg-[#E9EDDB] text-[#44532F] border-[#CFD8B8]', dot: 'bg-[#5C6E46]' },
 };
 function StatusPill({ status, small = false }) {
-  const cfg = STATUS_CONFIG[status] || { pill: 'bg-gray-50 text-gray-700 border-gray-200/70', dot: 'bg-gray-500' };
+  const cfg = STATUS_CONFIG[status] || { pill: 'bg-stone-100 text-stone-600 border-stone-200', dot: 'bg-stone-400' };
   return (
     <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full font-semibold border ${cfg.pill} ${small ? 'text-[10px]' : 'text-xs'} whitespace-nowrap`}>
       <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
@@ -59,28 +59,30 @@ function StatusPill({ status, small = false }) {
 ───────────────────────────────────────────── */
 const Icon = {
   leaf:    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 3v7a6 6 0 006 6 6 6 0 006-6V3M6 3h12M12 16v5m-4 0h8" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg>,
-  home:    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg>,
-  scale:   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg>,
-  check:   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg>,
-  wallet:  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg>,
   logout:  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg>,
   plus:    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5"/></svg>,
   search:  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg>,
-  filter:  <svg className="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg>,
-  export:  <svg className="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg>,
-  box:     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg>,
-  clock:   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg>,
-  badge:   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg>,
-  shield:  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg>,
-  done:    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5"/></svg>,
+  filter:  <svg className="w-3.5 h-3.5 text-stone-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg>,
+  export:  <svg className="w-3.5 h-3.5 text-stone-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg>,
   print:   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg>,
-  crop:    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 2v20M8 5a3 3 0 016 0M7 10a3 3 0 016 0M8 15a3 3 0 016 0" strokeLinecap="round" strokeLinejoin="round"/></svg>,
   eye:     <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg>,
   camera:  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/><path d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg>,
   receipt: <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg>,
   bolt:    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg>,
   arrow:   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 6l6 6-6 6M19 12H5" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg>,
   close:   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg>,
+  wheat:   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 22V8" strokeLinecap="round" strokeWidth="2"/><path d="M12 8C12 4.7 9.6 2.6 6.2 2.6c0 3.4 2.4 5.4 5.8 5.4z" strokeLinejoin="round" strokeWidth="1.8"/><path d="M12 8c0-3.3 2.4-5.4 5.8-5.4 0 3.4-2.4 5.4-5.8 5.4z" strokeLinejoin="round" strokeWidth="1.8"/><path d="M12 13c-1.6 0-3.8-.6-5-2M12 16.5c1.6 0 3.8-.6 5-2" strokeLinecap="round" strokeWidth="1.8"/></svg>,
+  rice:    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6.5 10h11l-1.3 9.2a2 2 0 01-2 1.8H9.8a2 2 0 01-2-1.8L6.5 10z" strokeLinejoin="round" strokeWidth="2"/><path d="M6.5 10c0-2.2 2.4-3.5 5.5-3.5s5.5 1.3 5.5 3.5" strokeWidth="2"/><path d="M12 6.5V4M9.5 13.5h5" strokeLinecap="round" strokeWidth="1.8"/></svg>,
+  soybean: <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M7.5 20.5C4.5 14.5 6.5 7.5 14.5 4c2.8 6 .8 13-7 16.5z" strokeLinejoin="round" strokeWidth="2"/><circle cx="10.6" cy="11.4" r="1.1" fill="currentColor" stroke="none"/><circle cx="12.4" cy="14.8" r="1.1" fill="currentColor" stroke="none"/></svg>,
+  weighbridge: <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M2 15.5h20" strokeLinecap="round" strokeWidth="2"/><path d="M5 15.5v-4.5h7v4.5M12 12.5h4.2l3.3 3" strokeLinejoin="round" strokeWidth="1.8"/><circle cx="7.5" cy="17.8" r="1.7" strokeWidth="1.8"/><circle cx="17" cy="17.8" r="1.7" strokeWidth="1.8"/></svg>,
+  truck:   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M2 6.5h12V16H2zM14 10.5h3.8L22 14.5V16h-8" strokeLinejoin="round" strokeWidth="2"/><circle cx="6.5" cy="18" r="1.8" strokeWidth="1.8"/><circle cx="17.5" cy="18" r="1.8" strokeWidth="1.8"/></svg>,
+  rupee:   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 3.5h12M6 7.5h12M6 3.5c7.5 0 9.5 1.6 9.5 4s-2.8 4-6.5 4l8.5 9" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg>,
+  flask:   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9.5 3h5M10.8 3v5L5.4 17.3a2.4 2.4 0 002.1 3.7h9a2.4 2.4 0 002.1-3.7L13.2 8V3" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8"/><path d="M7.6 14.5h8.8" strokeLinecap="round" strokeWidth="1.8"/></svg>,
+  vial:    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 3h6v8.5a3 3 0 01-6 0V3z" strokeLinejoin="round" strokeWidth="2"/><path d="M9.5 14.5h5M7 21h10" strokeLinecap="round" strokeWidth="1.8"/></svg>,
+  bank:    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 9.5L12 4l9 5.5M5 10v9M19.5 10v9M8.5 13v4M12 13v4M15.5 13v4M3 21h18" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8"/></svg>,
+  ticket:  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 8a2 2 0 002-2h12a2 2 0 002 2v1.5a2.5 2.5 0 000 5V16a2 2 0 00-2 2H6a2 2 0 00-2-2v-1.5a2.5 2.5 0 000-5V8z" strokeLinejoin="round" strokeWidth="1.8"/><path d="M13.5 7.5v1.8M13.5 11.1v1.8M13.5 14.7v1.8" strokeLinecap="round" strokeWidth="1.8"/></svg>,
+  timer:   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="13.5" r="7.5" strokeWidth="2"/><path d="M12 10v3.5l2.5 2.5M9.5 2.5h5" strokeLinecap="round" strokeWidth="1.8"/></svg>,
+  transfer: <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 8.5h12.5L13.5 5.5M20 15.5H7.5l3 3" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg>,
 };
 
 /* ─────────────────────────────────────────────
@@ -88,99 +90,128 @@ const Icon = {
 ───────────────────────────────────────────── */
 
 /** Sidebar — identical across all views, active view highlighted */
-function Sidebar({ user, stats, volumePct, activeView, setView, showForm, setShowForm, logout, navigate }) {
+/* -- FarmConnect design system: shared buttons + crop icons (terracotta primary, olive secondary) -- */
+function PrimaryBtn({ children, onClick, type }) {
+  return (
+    <button type={type || 'button'} onClick={onClick}
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded bg-[#B4431F] hover:bg-[#933515] active:scale-95
+                       text-white text-xs font-semibold shadow-sm transition-colors whitespace-nowrap">
+      {children}
+    </button>
+  );
+}
+function GhostBtn({ children, onClick }) {
+  return (
+    <button onClick={onClick}
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-md bg-white border border-stone-300
+                       text-stone-600 font-medium text-xs shadow-sm hover:bg-stone-50 transition-colors whitespace-nowrap">
+      {children}
+    </button>
+  );
+}
+function DoneChip() {
+  return (
+    <span className="inline-flex items-center gap-1.5 font-semibold text-xs text-[#44532F] bg-[#E9EDDB] border border-[#CFD8B8] px-2.5 py-1.5 rounded-full">
+      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5"/></svg>
+      Done
+    </span>
+  );
+}
+function cropIcon(type) {
+  const t = (type || '').toLowerCase();
+  if (t.indexOf('rice') !== -1) return Icon.rice;
+  if (t.indexOf('soy') !== -1) return Icon.soybean;
+  return Icon.wheat;
+}
+
+function Sidebar({ user, stats, bookings, volumePct, activeView, setView, showForm, setShowForm, logout, navigate }) {
   const navItems = [
-    { id: 'bookings',    icon: Icon.home,   label: 'All Bookings' },
-    { id: 'weighbridge', icon: Icon.scale,  label: 'Weighbridge Station' },
-    { id: 'qc',          icon: Icon.check,  label: 'QC Testing Lab' },
-    { id: 'payment',     icon: Icon.wallet, label: 'Payment Settlement' },
+    { id: 'bookings',    icon: Icon.ticket,   label: 'All Bookings' },
+    { id: 'weighbridge', icon: Icon.weighbridge,  label: 'Weighbridge Station' },
+    { id: 'qc',          icon: Icon.flask,  label: 'QC Testing Lab' },
+    { id: 'payment',     icon: Icon.rupee, label: 'Payment Settlement' },
   ];
   const initials = getInitials(user.name || 'Officer');
   const odId = `OD-${String(user.centerId || '').slice(-4).toUpperCase() || '0000'}`;
 
   return (
     <aside
-      className="w-72 flex flex-col justify-between p-5 text-white shrink-0 select-none border-r border-slate-800/60"
-      style={{ background: '#0B1120' }}
+      className="w-72 flex flex-col justify-between p-5 text-white shrink-0 select-none border-r border-stone-800/60"
+      style={{ background: '#221A13' }}
     >
       <div className="space-y-5">
         {/* Brand */}
         <div className="flex items-center gap-3 px-1.5 pt-1">
-          <div className="h-9 w-9 rounded-xl flex items-center justify-center shadow-lg ring-1 ring-white/10"
-               style={{ background: '#2563EB', boxShadow: '0 4px 14px rgba(37,99,235,.25)' }}>
+          <div className="h-9 w-9 rounded-md flex items-center justify-center shadow-lg ring-1 ring-white/10"
+               style={{ background: '#B4431F', boxShadow: '0 4px 14px rgba(180,67,31,.35)' }}>
             {Icon.leaf}
           </div>
           <div>
             <div className="flex items-center gap-1.5">
-              <span className="font-bold tracking-tight text-base text-white">FarmConnect</span>
+              <span className="font-display font-semibold tracking-tight text-lg text-[#F5EDE0]">FarmConnect</span>
               <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold
-                               bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">HQ</span>
+                               bg-[#5C6E46]/15 text-[#A9BC8A] border border-[#5C6E46]/40">HQ</span>
             </div>
-            <p className="text-[11px] text-slate-400">Officer Portal • {user.centerName || 'Mandi Central'}</p>
+            <p className="text-[11px] text-stone-400">Officer Portal • {user.centerName || 'Mandi Central'}</p>
           </div>
         </div>
 
         {/* Officer card */}
-        <div className="rounded-xl p-3.5 border border-slate-800/80 shadow-sm backdrop-blur-sm"
-             style={{ background: 'rgba(25,33,48,0.4)' }}>
+        <div className="rounded-md p-3.5 border border-stone-800/80 shadow-sm backdrop-blur-sm"
+             style={{ background: '#2E2318' }}>
           <div className="flex items-center gap-3">
             <div className="relative">
               <div className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-semibold
                              text-white tracking-wider border border-white/10 shadow-inner"
-                   style={{ background: '#2563EB' }}>
+                   style={{ background: '#5C6E46' }}>
                 {initials}
               </div>
-              <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-400 rounded-full ring-2 ring-[#0B1120]" />
+              <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-[#A9BC8A] rounded-full ring-2 ring-[#221A13]" />
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-medium tracking-widest text-slate-400 uppercase">Officer</span>
-                <span className="text-[10px] font-mono font-medium text-slate-400 bg-slate-800/50
-                                 px-1.5 py-0.5 rounded border border-slate-700/50">{odId}</span>
+                <span className="text-[10px] font-medium tracking-widest text-stone-400 uppercase">Officer</span>
+                <span className="text-[10px] font-mono font-medium text-stone-400 bg-stone-800/50
+                                 px-1.5 py-0.5 rounded border border-stone-700/50">{odId}</span>
               </div>
               <h4 className="text-sm font-semibold text-white truncate mt-0.5">{user.name}</h4>
-              <p className="text-[11px] text-slate-400 truncate">{user.centerName}</p>
+              <p className="text-[11px] text-stone-400 truncate">{user.centerName}</p>
             </div>
           </div>
         </div>
 
-        {/* Stats panel */}
-        <div className="rounded-xl p-4 space-y-3.5 border border-slate-800/60"
-             style={{ background: 'rgba(25,33,48,0.3)' }}>
+        {/* Today's intake: live activity feed (shared across all views) */}
+        <div className="rounded-md p-4 space-y-3 border border-white/10"
+             style={{ background: 'rgba(255,244,230,0.04)' }}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-blue-400" />
-              <span className="text-xs font-medium text-slate-300">Today's Intake</span>
+              <span className="w-2 h-2 rounded-full bg-[#D97B4A]" />
+              <span className="font-display text-sm font-semibold text-[#F5EDE0]">Today's Intake</span>
             </div>
-            <span className="text-[11px] font-medium text-slate-400">Live feed</span>
+            <span className="text-[11px] font-semibold text-[#D97B4A] font-mono">{stats.total} tokens</span>
           </div>
-          <div className="space-y-2.5 pt-1">
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-slate-400">Total Today</span>
-              <span className="font-semibold text-white bg-slate-800 px-2 py-0.5 rounded-md border border-slate-700/60 font-mono">{stats.total}</span>
-            </div>
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-slate-400">Active Queue</span>
-              <span className="inline-flex items-center gap-1 font-semibold text-amber-300
-                               bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 rounded-md font-mono">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />{stats.active}
-              </span>
-            </div>
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-slate-400">Settled / Paid</span>
-              <span className="inline-flex items-center gap-1 font-semibold text-emerald-300
-                               bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-md font-mono">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />{stats.paid}
-              </span>
-            </div>
+          <div className="space-y-0.5 max-h-52 overflow-y-auto pr-0.5">
+            {bookings.slice(0, 7).map(b => {
+              const dot = (STATUS_CONFIG[b.status] || {}).dot || 'bg-stone-500';
+              return (
+                <div key={b.id} className="flex items-center gap-2 px-1.5 py-1.5 rounded hover:bg-white/5">
+                  <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${dot}`} />
+                  <span className="text-[11px] font-mono font-medium text-stone-200">{b.tokenNumber}</span>
+                  <span className="text-[11px] text-stone-400 truncate">{b.cropType}</span>
+                </div>
+              );
+            })}
+            {bookings.length === 0 && (
+              <p className="text-[11px] text-stone-500 px-1.5 py-2">No tokens today yet.</p>
+            )}
           </div>
-          <div className="pt-2 border-t border-slate-800/80">
-            <div className="flex items-center justify-between text-[11px] text-slate-400 mb-1.5">
-              <span>Cumulative Volume</span>
-              <span className="text-slate-200 font-semibold font-mono">{stats.totalKg.toLocaleString()} kg</span>
+          <div className="pt-2.5 border-t border-white/10">
+            <div className="flex items-center justify-between text-[11px] text-stone-400 mb-1.5">
+              <span>Active {stats.active} · Settled {stats.paid}</span>
+              <span className="text-stone-200 font-semibold font-mono">{stats.totalKg.toLocaleString()} kg</span>
             </div>
-            <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
-              <div className="h-1.5 rounded-full" style={{ width: `${volumePct}%`, background: '#2563EB' }} />
+            <div className="w-full bg-white/10 rounded-full h-1.5 overflow-hidden">
+              <div className="h-1.5 rounded-full" style={{ width: `${volumePct}%`, background: '#B4431F' }} />
             </div>
           </div>
         </div>
@@ -188,11 +219,11 @@ function Sidebar({ user, stats, volumePct, activeView, setView, showForm, setSho
         {/* New Schedule */}
         <button
           onClick={() => setShowForm(true)}
-          className="w-full text-white font-medium py-2.5 px-4 rounded-xl flex items-center justify-center gap-2
-                     text-sm transition-all duration-150 group border border-blue-400/30"
-          style={{ background: '#2563EB', boxShadow: '0 4px 14px rgba(37,99,235,0.3)' }}
-          onMouseEnter={e => e.currentTarget.style.background = '#3b82f6'}
-          onMouseLeave={e => e.currentTarget.style.background = '#2563EB'}
+          className="w-full text-white font-medium py-2.5 px-4 rounded flex items-center justify-center gap-2
+                     text-sm transition-colors group font-semibold"
+          style={{ background: '#B4431F', boxShadow: '0 4px 14px rgba(180,67,31,.35)' }}
+          onMouseEnter={e => e.currentTarget.style.background = '#933515'}
+          onMouseLeave={e => e.currentTarget.style.background = '#B4431F'}
         >
           <span className="group-hover:rotate-90 transition-transform duration-200">{Icon.plus}</span>
           <span>New Schedule</span>
@@ -204,11 +235,11 @@ function Sidebar({ user, stats, volumePct, activeView, setView, showForm, setSho
             const isActive = activeView === id;
             return (
               <button key={id} onClick={() => setView(id)}
-                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs transition-colors text-left
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-xs transition-colors text-left
                   ${isActive
                     ? 'bg-white/5 text-white font-medium border border-white/5'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-white/5 font-normal'}`}>
-                <span className={isActive ? 'text-blue-400' : ''}>{icon}</span>
+                    : 'text-stone-400 hover:text-stone-200 hover:bg-white/5 font-normal'}`}>
+                <span className={isActive ? 'text-[#DE9A63]' : ''}>{icon}</span>
                 <span>{label}</span>
               </button>
             );
@@ -217,16 +248,16 @@ function Sidebar({ user, stats, volumePct, activeView, setView, showForm, setSho
       </div>
 
       {/* Logout */}
-      <div className="pt-4 border-t border-slate-800/80">
+      <div className="pt-4 border-t border-stone-800/80">
         <button
           onClick={() => { logout(); navigate('/login'); }}
-          className="w-full flex items-center justify-between px-2 py-2 text-slate-400 hover:text-red-400 transition-colors rounded-lg group"
+          className="w-full flex items-center justify-between px-2 py-2 text-stone-400 hover:text-[#DE9A63] transition-colors rounded-md group"
         >
           <div className="flex items-center gap-2.5 text-xs font-medium">
-            <span className="group-hover:text-red-400 transition-colors">{Icon.logout}</span>
+            <span className="group-hover:text-[#DE9A63] transition-colors">{Icon.logout}</span>
             <span>Logout</span>
           </div>
-          <span className="text-[10px] text-slate-600 group-hover:text-red-400 font-mono">v2.4</span>
+          <span className="text-[10px] text-stone-600 group-hover:text-[#DE9A63] font-mono">v2.4</span>
         </button>
       </div>
     </aside>
@@ -236,63 +267,66 @@ function Sidebar({ user, stats, volumePct, activeView, setView, showForm, setSho
 /** Shared page header with search + filter + export */
 function PageHeader({ title, subtitle, badge, search, setSearch }) {
   return (
-    <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-200/60">
+    <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-stone-200">
       <div>
         <div className="flex items-center gap-3">
-          <h1 className="text-[22px] font-bold tracking-tight text-slate-900">{title}</h1>
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-slate-100/80 text-slate-600 border border-slate-200/80">
+          <h1 className="font-display text-[26px] font-semibold tracking-tight text-stone-900">{title}</h1>
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded text-[11px] font-medium bg-[#F4E8CF] text-[#8A5A12] border border-[#E5CF9F]">
             {badge}
           </span>
         </div>
-        <p className="text-xs text-slate-500 mt-1">{subtitle}</p>
+        <p className="text-xs text-stone-500 mt-1">{subtitle}</p>
       </div>
       <div className="flex items-center gap-3 flex-wrap">
         <div className="relative w-72 lg:w-80">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">{Icon.search}</div>
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-stone-400">{Icon.search}</div>
           <input
             type="text"
             placeholder="Search by crop name..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="block w-full pl-9 pr-12 py-2 text-[13px] text-slate-800 bg-white border border-slate-200/80
-                       rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.02)] placeholder:text-slate-400 focus:outline-none
-                       focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+            className="block w-full pl-9 pr-12 py-2 text-[13px] text-stone-800 bg-white border border-stone-200/80
+                       rounded-md shadow-[0_2px_8px_rgba(0,0,0,0.02)] placeholder:text-stone-400 focus:outline-none
+                       focus:ring-2 focus:ring-[#B4431F]/25 focus:border-[#B4431F] transition-all"
           />
           <div className="absolute inset-y-0 right-0 pr-2.5 flex items-center pointer-events-none">
-            <kbd className="text-[10px] font-mono text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200/80">⌘K</kbd>
+            <kbd className="text-[10px] font-mono text-stone-400 bg-stone-50 px-1.5 py-0.5 rounded border border-stone-200/80">⌘K</kbd>
           </div>
         </div>
-        <button className="inline-flex items-center gap-2 px-3 py-2 text-[13px] font-medium text-slate-700
-                           bg-white border border-slate-200/80 rounded-xl hover:bg-slate-50
-                           shadow-[0_2px_8px_rgba(0,0,0,0.02)] transition-all">
+        <GhostBtn>
           {Icon.filter}<span>Produce: All</span>
-        </button>
-        <button className="inline-flex items-center gap-2 px-3 py-2 text-[13px] font-medium text-slate-700
-                           bg-white border border-slate-200/80 rounded-xl hover:bg-slate-50
-                           shadow-[0_2px_8px_rgba(0,0,0,0.02)] transition-all">
+        </GhostBtn>
+        <GhostBtn>
           {Icon.export}<span>Export</span>
-        </button>
+        </GhostBtn>
       </div>
     </header>
   );
 }
 
-/** 4-card metrics row */
+/** Stat cards: hero metric leads, inline icons, zero-values muted */
 function MetricsBar({ cards }) {
   return (
-    <section className="grid grid-cols-2 lg:grid-cols-4 gap-4 my-6">
-      {cards.map(({ label, value, unit, color, bg, iconColor, icon }) => (
-        <div key={label} className="bg-white rounded-xl p-4 border border-slate-200/60 flex items-center justify-between"
-             style={{ boxShadow: '0 2px 10px rgba(0,0,0,0.015), 0 1px 2px rgba(0,0,0,0.02)' }}>
+    <section className="grid grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr] gap-4 my-6">
+      {cards.map(({ label, value, unit, tint, icon, hero }) => {
+        const zero = String(value).charAt(0) === '0';
+        const valueCls = hero ? 'text-[28px] leading-8' : 'text-xl';
+        const valueLineCls = 'font-display tabular-nums mt-1.5 ' + valueCls + ' ' + (zero ? 'text-stone-300' : 'text-stone-900');
+        const unitCls = 'font-sans text-xs font-medium ml-1.5 ' + (zero ? 'text-stone-300' : 'text-stone-400');
+        return (
+        <div key={label} className="bg-white rounded-md px-5 py-4 border border-stone-200/80"
+             style={{ boxShadow: '0 1px 2px rgba(60,45,25,0.05)' }}>
           <div>
-            <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest">{label}</p>
-            <p className={`text-xl font-bold mt-1 ${color}`}>
-              {value}{unit && <span className="text-xs font-medium text-slate-400 ml-1.5">{unit}</span>}
+            <p className="flex items-center gap-1.5 text-[11px] font-semibold text-stone-500 uppercase tracking-widest">
+              <span className={zero ? 'text-stone-300' : tint}>{icon}</span>{label}
+            </p>
+            <p className={valueLineCls}>
+              {value}{unit ? <span className={unitCls}>{unit}</span> : null}
             </p>
           </div>
-          <div className={`w-10 h-10 rounded-xl ${bg} ${iconColor} flex items-center justify-center shadow-sm`}>{icon}</div>
         </div>
-      ))}
+        );
+      })}
     </section>
   );
 }
@@ -300,13 +334,13 @@ function MetricsBar({ cards }) {
 /** Table wrapper with pagination footer */
 function TableCard({ headers, rows, total, filtered }) {
   return (
-    <div className="bg-white rounded-2xl border border-slate-200/60 overflow-hidden flex flex-col"
+    <div className="bg-white rounded-md border border-stone-200/60 overflow-hidden flex flex-col"
          style={{ boxShadow: '0 4px 20px -2px rgba(0,0,0,0.03), 0 0 3px rgba(0,0,0,0.02)' }}>
       <div className="overflow-x-auto">
         <div style={{ minWidth: 1040 }}>
           {/* Header — gap-4 MUST match every data row exactly */}
-          <div className="grid items-center bg-white px-6 py-3.5 border-b border-slate-100
-                          text-[10px] font-bold tracking-widest text-slate-400 uppercase select-none gap-4"
+          <div className="grid items-center bg-white px-6 py-3.5 border-b border-stone-100
+                          text-[10px] font-bold tracking-widest text-stone-400 uppercase select-none gap-4"
                style={{ gridTemplateColumns: headers.map(h => h.span).join(' ') }}>
             {headers.map(h => (
               <div key={h.label}
@@ -320,14 +354,14 @@ function TableCard({ headers, rows, total, filtered }) {
             ))}
           </div>
           {/* Body */}
-          <div className="divide-y divide-slate-100/60 text-xs">
+          <div className="divide-y divide-stone-100/60 text-xs">
             {rows.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-20 text-slate-400">
-                <div className="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center mb-3 border border-slate-100">
+              <div className="flex flex-col items-center justify-center py-20 text-stone-400">
+                <div className="w-12 h-12 rounded-full bg-stone-50 flex items-center justify-center mb-3 border border-stone-100">
                   {Icon.search}
                 </div>
-                <p className="text-sm font-medium text-slate-600">No bookings found</p>
-                <p className="text-[11px] mt-1 text-slate-400 text-center max-w-sm">
+                <p className="text-sm font-medium text-stone-600">No bookings found</p>
+                <p className="text-[11px] mt-1 text-stone-400 text-center max-w-sm">
                   There are currently no crops matching this search. Make sure farmers have booked slots for today.
                 </p>
               </div>
@@ -336,12 +370,12 @@ function TableCard({ headers, rows, total, filtered }) {
         </div>
       </div>
       {/* Pagination footer */}
-      <div className="px-6 py-4 bg-white border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500 select-none">
-        <div>Showing <span className="font-semibold text-slate-700">1</span> to <span className="font-semibold text-slate-700">{filtered}</span> of <span className="font-semibold text-slate-700">{total}</span> records</div>
+      <div className="px-6 py-4 bg-white border-t border-stone-100 flex items-center justify-between text-[11px] text-stone-500 select-none">
+        <div>Showing <span className="font-semibold text-stone-700">1</span> to <span className="font-semibold text-stone-700">{filtered}</span> of <span className="font-semibold text-stone-700">{total}</span> records</div>
         <div className="flex items-center gap-1.5">
-          <button disabled className="px-2.5 py-1.5 rounded-lg border border-slate-200/70 text-slate-400 bg-slate-50/50 cursor-not-allowed font-medium transition-colors">Previous</button>
-          <span className="px-3 font-semibold text-slate-700 bg-slate-50 border border-slate-200/50 rounded-lg py-1.5">1</span>
-          <button disabled className="px-2.5 py-1.5 rounded-lg border border-slate-200/70 text-slate-400 bg-slate-50/50 cursor-not-allowed font-medium transition-colors">Next</button>
+          <button disabled className="px-2.5 py-1.5 rounded-md border border-stone-200/70 text-stone-400 bg-stone-50/50 cursor-not-allowed font-medium transition-colors">Previous</button>
+          <span className="px-3 font-semibold text-stone-700 bg-stone-50 border border-stone-200/50 rounded-md py-1.5">1</span>
+          <button disabled className="px-2.5 py-1.5 rounded-md border border-stone-200/70 text-stone-400 bg-stone-50/50 cursor-not-allowed font-medium transition-colors">Next</button>
         </div>
       </div>
     </div>
@@ -357,8 +391,8 @@ function FarmerCell({ name, sub }) {
         {getInitials(name)}
       </div>
       <div className="min-w-0">
-        <p className="font-semibold text-slate-900 truncate">{name}</p>
-        <p className="text-slate-400 text-[11px] font-mono">{sub}</p>
+        <p className="font-semibold text-stone-900 truncate">{name}</p>
+        <p className="text-stone-400 text-[11px] font-mono">{sub}</p>
       </div>
     </div>
   );
@@ -368,7 +402,7 @@ function FarmerCell({ name, sub }) {
 function TokenBadge({ token }) {
   return (
     <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-semibold font-mono tracking-wide
-                     bg-blue-50 text-blue-700 border border-blue-200/70">
+                     bg-[#F4E8CF] text-[#8A5A12] border border-[#E5CF9F]">
       {token}
     </span>
   );
@@ -378,8 +412,8 @@ function TokenBadge({ token }) {
 function CropCell({ type }) {
   return (
     <div className="flex items-center gap-1.5">
-      <div className="w-6 h-6 rounded bg-amber-50 text-amber-800 flex items-center justify-center shrink-0">{Icon.crop}</div>
-      <span className="font-medium text-slate-700 text-xs">{type}</span>
+      <div className="w-6 h-6 rounded bg-[#F4E8CF] text-[#8A5A12] flex items-center justify-center shrink-0">{cropIcon(type)}</div>
+      <span className="font-medium text-stone-700 text-xs">{type}</span>
     </div>
   );
 }
@@ -387,30 +421,30 @@ function CropCell({ type }) {
 /* Upload / image placeholder button */
 function UploadBtn({ label }) {
   return (
-    <button className="w-full inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg
-                       border border-dashed border-amber-400/80 bg-amber-50/50 hover:bg-amber-100/50
-                       text-amber-800 font-medium text-[11px] transition-colors">
-      <span className="text-amber-600">{Icon.camera}</span>
+    <button className="w-full inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-md
+                       border border-dashed border-stone-300 bg-[#FBF8F1] hover:bg-[#F4EDE0]
+                       text-stone-600 font-medium text-[11px] transition-colors">
+      <span className="text-stone-400">{Icon.camera}</span>
       <span>{label}</span>
     </button>
   );
 }
 
 /* Image filename chip */
-function ImgChip({ name, color = 'slate' }) {
-  const bg = color === 'purple' ? 'bg-purple-50 border-purple-200/80 text-purple-700' : 'bg-slate-100 border-slate-200 text-slate-600';
+function ImgChip({ name, color = 'stone' }) {
+  const bg = color === 'plum' ? 'bg-[#ECE7EE] border-[#D3C8DB] text-[#5D4A6B]' : 'bg-stone-100 border-stone-200 text-stone-600';
   return (
-    <div className={`flex items-center gap-1.5 px-2 py-1 rounded-lg border text-xs font-mono ${bg}`}>
-      {Icon.eye ? null : null}
-      <span className={`text-[11px] font-medium font-mono ${color === 'purple' ? 'text-purple-700' : 'text-slate-700'}`}>{name}</span>
+    <div className={`flex items-center gap-1.5 px-2 py-1 rounded-md border text-xs font-mono ${bg}`}>
+      {Icon.eye}
+      <span className={`text-[11px] font-medium font-mono ${color === 'plum' ? 'text-[#5D4A6B]' : 'text-stone-700'}`}>{name}</span>
     </div>
   );
 }
 
 function ViewBtn({ label }) {
   return (
-    <button className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 hover:text-blue-700
-                       bg-blue-50 hover:bg-blue-100/70 border border-blue-200/70 px-2 py-1 rounded-md transition-colors">
+    <button className="inline-flex items-center gap-1 text-[11px] font-semibold text-stone-600 hover:text-stone-800
+                       bg-white hover:bg-stone-50 border border-stone-300 px-2 py-1 rounded transition-colors">
       {Icon.eye}<span>{label || 'VIEW'}</span>
     </button>
   );
@@ -433,19 +467,19 @@ function AllBookings({ bookings, search, setSearch, handleStatusUpdate, stats })
     { label: 'Action',                 span: '140px', align: 'right' },
   ];
 
-  const rowBg = s => s === 'Queued' ? 'bg-amber-50/30' : s === 'Quality Checked' ? 'bg-purple-50/20' : '';
+  const rowBg = s => s === 'Queued' ? 'bg-[#B4431F]/[0.05]' : s === 'Quality Checked' ? 'bg-[#6D5A7B]/[0.06]' : '';
 
   const rows = filtered.map(b => {
     const curIdx    = STAGES.indexOf(b.status);
     const nextStage = curIdx < STAGES.length - 1 ? STAGES[curIdx + 1] : null;
     return (
       <div key={b.id}
-           className={`grid items-center px-6 py-4 hover:bg-slate-50/70 transition-colors gap-4 ${rowBg(b.status)}`}
+           className={`grid items-center px-5 py-3 hover:bg-stone-50/70 transition-colors gap-4 ${rowBg(b.status)}`}
            style={{ gridTemplateColumns: COLS.map(c => c.span).join(' ') }}>
         {/* Date & Time — left */}
         <div className="flex flex-col justify-center">
-          <span className="font-medium text-slate-800 text-xs">{b.date || '—'}</span>
-          <span className="text-[11px] text-slate-400 font-mono">{b.slotTime || '—'}</span>
+          <span className="font-medium text-stone-800 text-xs">{b.date || '—'}</span>
+          <span className="text-[11px] text-stone-400 font-mono">{b.slotTime || '—'}</span>
         </div>
         {/* Token — left */}
         <div className="flex items-center">
@@ -455,10 +489,10 @@ function AllBookings({ bookings, search, setSearch, handleStatusUpdate, stats })
         <FarmerCell name={b.farmerName} sub={b.farmerId} />
         {/* Produce — left */}
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-md bg-amber-50 text-amber-800 flex items-center justify-center shrink-0">{Icon.crop}</div>
+          <div className="w-7 h-7 rounded bg-[#F4E8CF] text-[#8A5A12] flex items-center justify-center shrink-0">{cropIcon(b.cropType)}</div>
           <div>
-            <span className="font-medium text-slate-700 block text-xs">{b.cropType}</span>
-            <span className="font-bold text-slate-900 text-xs">{b.quantityKg} kg</span>
+            <span className="font-medium text-stone-700 block text-xs">{b.cropType}</span>
+            <span className="font-bold text-stone-900 text-xs">{b.quantityKg} kg</span>
           </div>
         </div>
         {/* Status — left */}
@@ -468,15 +502,11 @@ function AllBookings({ bookings, search, setSearch, handleStatusUpdate, stats })
         {/* Action — right */}
         <div className="flex items-center justify-end">
           {nextStage ? (
-            <button onClick={() => handleStatusUpdate(b.id, nextStage)}
-                    className="inline-flex items-center gap-1 bg-blue-600 hover:bg-blue-700 active:scale-95
-                               text-white text-xs font-medium px-3 py-1.5 rounded-lg shadow-sm transition-all">
+            <PrimaryBtn onClick={() => handleStatusUpdate(b.id, nextStage)}>
               <span className="inline-flex">{Icon.arrow}</span><span>{nextStage}</span>
-            </button>
+            </PrimaryBtn>
           ) : (
-            <span className="inline-flex items-center gap-1 font-semibold text-xs text-emerald-600 bg-emerald-50/50 px-2 py-1 rounded-md">
-              {Icon.done} Done
-            </span>
+            <DoneChip />
           )}
         </div>
       </div>
@@ -484,10 +514,10 @@ function AllBookings({ bookings, search, setSearch, handleStatusUpdate, stats })
   });
 
   const metricCards = [
-    { label: 'Total Volume',      value: stats.totalKg.toLocaleString(), unit: 'kg',      color: 'text-slate-900',   bg: 'bg-blue-50',    iconColor: 'text-blue-600',   icon: Icon.box },
-    { label: 'Pending Weighment', value: String(stats.pendingWeigh),     unit: 'vehicle', color: 'text-amber-600',   bg: 'bg-amber-50',   iconColor: 'text-amber-600',  icon: Icon.clock },
-    { label: 'QC Clearance',      value: String(stats.pendingQC),        unit: 'lot',     color: 'text-purple-600',  bg: 'bg-purple-50',  iconColor: 'text-purple-600', icon: Icon.badge },
-    { label: 'Settled Payouts',   value: `${stats.paid} paid`,           unit: '',        color: 'text-emerald-600', bg: 'bg-emerald-50', iconColor: 'text-emerald-600',icon: Icon.shield },
+    { label: 'Total Volume',      value: stats.totalKg.toLocaleString(), unit: 'kg',      tint: 'text-[#B4431F]', icon: Icon.wheat, hero: true },
+    { label: 'Pending Weighment', value: String(stats.pendingWeigh),     unit: 'vehicle', tint: 'text-[#3E6B8C]', icon: Icon.weighbridge },
+    { label: 'QC Clearance',      value: String(stats.pendingQC),        unit: 'lot',     tint: 'text-[#6D5A7B]', icon: Icon.flask },
+    { label: 'Settled Payouts',   value: `${stats.paid} paid`,           unit: '',        tint: 'text-[#5C6E46]', icon: Icon.rupee },
   ];
 
   return (
@@ -528,7 +558,7 @@ function WeighbridgeStation({ bookings, search, setSearch, handleStatusUpdate, s
 
     return (
       <div key={b.id}
-           className={`grid items-center px-6 py-4 hover:bg-slate-50/70 transition-colors gap-4 ${b.status === 'Queued' ? 'bg-amber-50/20' : ''}`}
+           className={`grid items-center px-5 py-3 hover:bg-stone-50/70 transition-colors gap-4 ${b.status === 'Queued' ? 'bg-[#B4431F]/[0.04]' : ''}`}
            style={{ gridTemplateColumns: COLS.map(c => c.span).join(' ') }}>
 
         {/* Token — left */}
@@ -542,20 +572,20 @@ function WeighbridgeStation({ bookings, search, setSearch, handleStatusUpdate, s
 
         {/* Loaded — right */}
         <div className="flex flex-col items-end justify-center">
-          <span className="font-semibold text-slate-800 text-sm font-mono">{loaded.toLocaleString()}</span>
-          <span className="text-slate-400 text-[10px]">kg</span>
+          <span className="font-semibold text-stone-800 text-sm font-mono">{loaded.toLocaleString()}</span>
+          <span className="text-stone-400 text-[10px]">kg</span>
         </div>
 
         {/* Unloaded — right */}
         <div className="flex flex-col items-end justify-center">
-          <span className="font-semibold text-slate-800 text-sm font-mono">{unloaded.toLocaleString()}</span>
-          <span className="text-slate-400 text-[10px]">kg</span>
+          <span className="font-semibold text-stone-800 text-sm font-mono">{unloaded.toLocaleString()}</span>
+          <span className="text-stone-400 text-[10px]">kg</span>
         </div>
 
         {/* Net — right, boldest */}
         <div className="flex flex-col items-end justify-center">
-          <span className="font-bold text-slate-900 text-sm font-mono">{qty}</span>
-          <span className="text-slate-400 text-[10px]">kg net</span>
+          <span className="font-bold text-stone-900 text-sm font-mono">{qty}</span>
+          <span className="text-stone-400 text-[10px]">kg net</span>
         </div>
 
         {/* Weight Cert — center */}
@@ -575,15 +605,13 @@ function WeighbridgeStation({ bookings, search, setSearch, handleStatusUpdate, s
         {/* Action — right */}
         <div className="flex items-center justify-end">
           {b.status === 'Queued' ? (
-            <button onClick={() => handleStatusUpdate(b.id, 'Weighed')}
-                    className="inline-flex items-center gap-1 bg-blue-600 hover:bg-blue-500 active:scale-95
-                               text-white text-xs font-medium px-3 py-2 rounded-lg shadow-sm transition-all">
+            <PrimaryBtn onClick={() => handleStatusUpdate(b.id, 'Weighed')}>
               <span>SAVE &amp; NEXT</span><span className="inline-flex">{Icon.arrow}</span>
-            </button>
+            </PrimaryBtn>
           ) : (
-            <button className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-sky-600 hover:bg-sky-700 text-white font-semibold text-xs shadow-sm transition-colors">
+            <PrimaryBtn>
               {Icon.print}<span>PRINT TICKET</span>
-            </button>
+            </PrimaryBtn>
           )}
         </div>
       </div>
@@ -591,10 +619,10 @@ function WeighbridgeStation({ bookings, search, setSearch, handleStatusUpdate, s
   });
 
   const metricCards = [
-    { label: "Today's Weighed Vol.", value: stats.totalKg.toLocaleString(), unit: 'kg',      color: 'text-slate-900',   bg: 'bg-blue-50',    iconColor: 'text-blue-600',   icon: Icon.scale },
-    { label: 'Vehicles in Queue',    value: String(stats.pendingWeigh),     unit: 'pending', color: 'text-amber-600',   bg: 'bg-amber-50',   iconColor: 'text-amber-600',  icon: Icon.clock },
-    { label: 'Awaiting Image Upload',value: String(stats.pendingWeigh),     unit: 'lot',     color: 'text-purple-600',  bg: 'bg-purple-50',  iconColor: 'text-purple-600', icon: Icon.camera },
-    { label: 'Completed Tickets',    value: String(stats.paid + stats.total - stats.active), unit: 'tickets', color: 'text-emerald-600', bg: 'bg-emerald-50', iconColor: 'text-emerald-600', icon: Icon.badge },
+    { label: "Today's Weighed Vol.", value: stats.totalKg.toLocaleString(), unit: 'kg',      tint: 'text-[#B4431F]', icon: Icon.weighbridge, hero: true },
+    { label: 'Vehicles in Queue',    value: String(stats.pendingWeigh),     unit: 'pending', tint: 'text-[#3E6B8C]', icon: Icon.truck },
+    { label: 'Awaiting Image Upload',value: String(stats.pendingWeigh),     unit: 'lot',     tint: 'text-[#8A5A12]', icon: Icon.camera },
+    { label: 'Completed Tickets',    value: String(stats.paid + stats.total - stats.active), unit: 'tickets', tint: 'text-[#5C6E46]', icon: Icon.ticket },
   ];
 
   return (
@@ -632,7 +660,7 @@ function QCLab({ bookings, search, setSearch, handleStatusUpdate, stats }) {
     const active = b.status === 'Weighed';
     return (
       <div key={b.id}
-           className={`grid items-center px-6 py-4 hover:bg-slate-50/70 transition-colors gap-4 ${active ? 'bg-amber-50/20' : ''}`}
+           className={`grid items-center px-5 py-3 hover:bg-stone-50/70 transition-colors gap-4 ${active ? 'bg-[#B4431F]/[0.04]' : ''}`}
            style={{ gridTemplateColumns: COLS.map(c => c.span).join(' ') }}>
 
         {/* Token — left */}
@@ -647,35 +675,35 @@ function QCLab({ bookings, search, setSearch, handleStatusUpdate, stats }) {
         {/* Moisture — center */}
         <div className="flex items-center justify-center">
           {active ? (
-            <input defaultValue="12.4" className="w-16 px-1.5 py-1 text-sm border border-slate-200 rounded
+            <input defaultValue="12.4" className="w-16 px-1.5 py-1 text-sm border border-stone-200 rounded
                                                    font-mono text-center font-semibold bg-white
-                                                   focus:outline-none focus:ring-2 focus:ring-blue-500/20" />
+                                                   focus:outline-none focus:ring-2 focus:ring-[#B4431F]/25" />
           ) : (
-            <span className="font-semibold text-slate-800 text-sm font-mono">11.8%</span>
+            <span className="font-semibold text-stone-800 text-sm font-mono">11.8%</span>
           )}
         </div>
 
         {/* Foreign — center */}
         <div className="flex items-center justify-center">
           {active ? (
-            <input defaultValue="0.8" className="w-16 px-1.5 py-1 text-sm border border-slate-200 rounded
+            <input defaultValue="0.8" className="w-16 px-1.5 py-1 text-sm border border-stone-200 rounded
                                                   font-mono text-center font-semibold bg-white
-                                                  focus:outline-none focus:ring-2 focus:ring-blue-500/20" />
+                                                  focus:outline-none focus:ring-2 focus:ring-[#B4431F]/25" />
           ) : (
-            <span className="font-semibold text-slate-800 text-sm font-mono">0.4%</span>
+            <span className="font-semibold text-stone-800 text-sm font-mono">0.4%</span>
           )}
         </div>
 
         {/* Grade — center */}
         <div className="flex items-center justify-center">
           {active ? (
-            <select className="text-xs px-2 py-1 border border-slate-200 rounded bg-white font-semibold
-                               text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
+            <select className="text-xs px-2 py-1 border border-stone-200 rounded bg-white font-semibold
+                               text-stone-800 focus:outline-none focus:ring-2 focus:ring-[#B4431F]/25">
               <option>Grade A</option><option>Grade B</option><option>Grade C</option>
             </select>
           ) : (
             <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold
-                             bg-emerald-50 text-emerald-700 border border-emerald-200/70">Grade A</span>
+                             bg-[#E9EDDB] text-[#44532F] border border-[#CFD8B8]">Grade A</span>
           )}
         </div>
 
@@ -686,7 +714,7 @@ function QCLab({ bookings, search, setSearch, handleStatusUpdate, stats }) {
           ) : active ? (
             <UploadBtn label="UPLOAD QC REPORT" />
           ) : (
-            <span className="text-xs text-slate-400">—</span>
+            <span className="text-xs text-stone-400">—</span>
           )}
         </div>
 
@@ -698,17 +726,15 @@ function QCLab({ bookings, search, setSearch, handleStatusUpdate, stats }) {
         {/* Action — right */}
         <div className="flex items-center justify-end">
           {active ? (
-            <button onClick={() => handleStatusUpdate(b.id, 'Quality Checked')}
-                    className="inline-flex items-center gap-1 bg-blue-600 hover:bg-blue-500 active:scale-95
-                               text-white text-xs font-medium px-3 py-2 rounded-lg shadow-sm transition-all">
+            <PrimaryBtn onClick={() => handleStatusUpdate(b.id, 'Quality Checked')}>
               <span>SAVE &amp; NEXT</span><span className="inline-flex">{Icon.arrow}</span>
-            </button>
+            </PrimaryBtn>
           ) : qcDone ? (
-            <button className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs shadow-sm transition-colors">
+            <PrimaryBtn>
               {Icon.print}<span>PRINT LAB REPORT</span>
-            </button>
+            </PrimaryBtn>
           ) : (
-            <span className="text-xs text-slate-400">Pending weigh</span>
+            <span className="text-xs text-stone-400">Pending weigh</span>
           )}
         </div>
       </div>
@@ -716,10 +742,10 @@ function QCLab({ bookings, search, setSearch, handleStatusUpdate, stats }) {
   });
 
   const metricCards = [
-    { label: 'Samples Received',    value: String(bookings.length), unit: 'lots',     color: 'text-slate-900',   bg: 'bg-blue-50',    iconColor: 'text-blue-600',   icon: Icon.badge },
-    { label: 'Tests Completed',     value: String(stats.paid + stats.pendingQC),       unit: 'verified', color: 'text-emerald-600', bg: 'bg-emerald-50', iconColor: 'text-emerald-600', icon: Icon.check },
-    { label: 'Pending Lab Analysis',value: String(stats.pendingWeigh), unit: 'active', color: 'text-amber-600',   bg: 'bg-amber-50',   iconColor: 'text-amber-600',  icon: Icon.clock },
-    { label: 'Avg. Analysis Time',  value: '8.4',                     unit: 'min',     color: 'text-purple-600',  bg: 'bg-purple-50',  iconColor: 'text-purple-600', icon: Icon.bolt },
+    { label: 'Samples Received',    value: String(bookings.length), unit: 'lots',     tint: 'text-[#8A5A12]', icon: Icon.wheat },
+    { label: 'Tests Completed',     value: String(stats.paid + stats.pendingQC),       unit: 'verified', tint: 'text-[#B4431F]', icon: Icon.flask, hero: true },
+    { label: 'Pending Lab Analysis',value: String(stats.pendingWeigh), unit: 'active', tint: 'text-[#6D5A7B]', icon: Icon.vial },
+    { label: 'Avg. Analysis Time',  value: '8.4',                     unit: 'min',     tint: 'text-[#3E6B8C]', icon: Icon.timer },
   ];
 
   return (
@@ -765,7 +791,7 @@ function PaymentSettlement({ bookings, search, setSearch, handleStatusUpdate, st
 
     return (
       <div key={b.id}
-           className={`grid items-center px-6 py-4 hover:bg-slate-50/70 transition-colors gap-4 ${ready ? 'bg-amber-50/20' : ''}`}
+           className={`grid items-center px-5 py-3 hover:bg-stone-50/70 transition-colors gap-4 ${ready ? 'bg-[#B4431F]/[0.04]' : ''}`}
            style={{ gridTemplateColumns: COLS.map(c => c.span).join(' ') }}>
 
         {/* Token — left */}
@@ -779,35 +805,35 @@ function PaymentSettlement({ bookings, search, setSearch, handleStatusUpdate, st
 
         {/* Qty — right */}
         <div className="flex flex-col items-end justify-center">
-          <span className="font-semibold text-slate-800 text-sm">{qty}</span>
-          <span className="text-slate-400 text-[10px]">kg</span>
+          <span className="font-semibold text-stone-800 text-sm">{qty}</span>
+          <span className="text-stone-400 text-[10px]">kg</span>
         </div>
 
         {/* Rate — right */}
         <div className="flex flex-col items-end justify-center">
-          <span className="font-semibold text-slate-700 text-sm font-mono">₹{rate.toFixed(2)}</span>
-          <span className="text-slate-400 text-[10px]">per kg</span>
+          <span className="font-semibold text-stone-700 text-sm font-mono">₹{rate.toFixed(2)}</span>
+          <span className="text-stone-400 text-[10px]">per kg</span>
         </div>
 
         {/* Total — right */}
         <div className="flex items-center justify-end">
-          <span className="font-bold text-slate-900 text-sm font-mono">₹{total.toLocaleString()}</span>
+          <span className="font-bold text-stone-900 text-sm font-mono">₹{total.toLocaleString()}</span>
         </div>
 
         {/* Payable — right, highlighted */}
         <div className="flex items-center justify-end">
           {paid ? (
-            <span className="bg-emerald-50 border border-emerald-200 text-emerald-700
-                             font-bold text-sm font-mono px-2.5 py-1 rounded-lg">
+            <span className="bg-[#E9EDDB] border border-[#CFD8B8] text-[#44532F]
+                             font-bold text-sm font-mono px-2.5 py-1 rounded-md">
               ₹{total.toLocaleString()}
             </span>
           ) : ready ? (
-            <span className="bg-amber-50 border border-amber-200 text-amber-700
-                             font-bold text-sm font-mono px-2.5 py-1 rounded-lg">
+            <span className="bg-[#F6EBCF] border border-[#E5CF9F] text-[#7A4E0D]
+                             font-bold text-sm font-mono px-2.5 py-1 rounded-md">
               ₹{total.toLocaleString()}
             </span>
           ) : (
-            <span className="font-bold text-slate-500 text-sm font-mono">₹{total.toLocaleString()}</span>
+            <span className="font-bold text-stone-500 text-sm font-mono">₹{total.toLocaleString()}</span>
           )}
         </div>
 
@@ -819,17 +845,15 @@ function PaymentSettlement({ bookings, search, setSearch, handleStatusUpdate, st
         {/* Action — right */}
         <div className="flex items-center justify-end">
           {ready ? (
-            <button onClick={() => handleStatusUpdate(b.id, 'Payment Initiated')}
-                    className="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white
-                               text-xs font-bold px-3 py-2 rounded-lg shadow-sm transition-colors whitespace-nowrap">
-              <span className="inline-flex [&_svg]:w-3.5 [&_svg]:h-3.5">{Icon.bolt}</span><span>TRIGGER DBT</span>
-            </button>
+            <PrimaryBtn onClick={() => handleStatusUpdate(b.id, 'Payment Initiated')}>
+              <span className="inline-flex">{Icon.bolt}</span><span>TRIGGER DBT</span>
+            </PrimaryBtn>
           ) : paid ? (
-            <button className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-violet-600 hover:bg-violet-700 text-white font-semibold text-xs shadow-sm transition-colors">
+            <PrimaryBtn>
               {Icon.receipt}<span>RECEIPT</span>
-            </button>
+            </PrimaryBtn>
           ) : (
-            <span className="text-xs text-slate-400">—</span>
+            <span className="text-xs text-stone-400">—</span>
           )}
         </div>
       </div>
@@ -843,10 +867,10 @@ function PaymentSettlement({ bookings, search, setSearch, handleStatusUpdate, st
     .reduce((s, b) => s + Number(b.quantityKg || 0) * (MSP_RATES[b.cropType] || 25), 0);
 
   const metricCards = [
-    { label: 'Total Settled',       value: `₹${Math.round(totalPaid).toLocaleString()}`, unit: '',       color: 'text-emerald-700', bg: 'bg-emerald-50', iconColor: 'text-emerald-600', icon: <span className="font-bold text-base">₹</span> },
-    { label: 'Payments in Process', value: String(stats.pendingWeigh), unit: 'active',   color: 'text-amber-600',   bg: 'bg-amber-50',   iconColor: 'text-amber-600',  icon: Icon.clock },
-    { label: 'Awaiting Bank Conf.', value: String(stats.pendingQC),    unit: 'lot',      color: 'text-purple-600',  bg: 'bg-purple-50',  iconColor: 'text-purple-600', icon: Icon.shield },
-    { label: 'Avg. Payout Cycle',   value: '4.2',                      unit: 'hrs',      color: 'text-blue-600',    bg: 'bg-blue-50',    iconColor: 'text-blue-600',   icon: Icon.bolt },
+    { label: 'Total Settled',       value: `₹${Math.round(totalPaid).toLocaleString()}`, unit: '',       tint: 'text-[#B4431F]', icon: Icon.rupee, hero: true },
+    { label: 'Payments in Process', value: String(stats.pendingWeigh), unit: 'active',   tint: 'text-[#8A5A12]', icon: Icon.transfer },
+    { label: 'Awaiting Bank Conf.', value: String(stats.pendingQC),    unit: 'lot',      tint: 'text-[#37556E]', icon: Icon.bank },
+    { label: 'Avg. Payout Cycle',   value: '4.2',                      unit: 'hrs',      tint: 'text-[#3E6B8C]', icon: Icon.timer },
   ];
 
   return (
@@ -931,18 +955,18 @@ export default function QueueView() {
   const sharedProps = { bookings, search, setSearch, handleStatusUpdate, stats };
 
   return (
-    <div className="flex h-screen overflow-hidden" style={{ fontFamily: "'Inter', sans-serif", background: '#F8FAFC' }}>
+    <div className="flex h-screen overflow-hidden" style={{ fontFamily: "'Inter', sans-serif", background: '#F6F1E8' }}>
 
       {/* ── SIDEBAR ── */}
       <Sidebar
-        user={user} stats={stats} volumePct={volumePct}
+        user={user} stats={stats} bookings={bookings} volumePct={volumePct}
         activeView={activeView} setView={setView}
         showForm={showForm} setShowForm={setShowForm}
         logout={logout} navigate={navigate}
       />
 
       {/* ── MAIN CONTENT ── */}
-      <main className="flex-1 flex flex-col min-w-0 overflow-y-auto p-6 lg:p-8" style={{ background: '#F8FAFC' }}>
+      <main className="flex-1 flex flex-col min-w-0 overflow-y-auto p-6 lg:p-8" style={{ background: '#F6F1E8' }}>
         {activeView === 'bookings'    && <AllBookings       {...sharedProps} />}
         {activeView === 'weighbridge' && <WeighbridgeStation {...sharedProps} />}
         {activeView === 'qc'          && <QCLab             {...sharedProps} />}
@@ -952,11 +976,11 @@ export default function QueueView() {
       {/* ── CREATE SCHEDULE MODAL ── */}
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.55)' }}>
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6">
+          <div className="bg-white rounded-md shadow-2xl w-full max-w-md p-6">
             <div className="flex justify-between items-center mb-5">
-              <h3 className="text-lg font-bold text-slate-800">New Procurement Schedule</h3>
+              <h3 className="font-display text-lg font-semibold text-stone-900 tracking-tight">New Procurement Schedule</h3>
               <button onClick={() => setShowForm(false)}>
-                <span className="text-slate-400 hover:text-slate-700 transition-colors inline-flex">{Icon.close}</span>
+                <span className="text-stone-400 hover:text-stone-700 transition-colors inline-flex">{Icon.close}</span>
               </button>
             </div>
             <form onSubmit={handleCreateSchedule} className="space-y-4">
@@ -969,19 +993,19 @@ export default function QueueView() {
                 { label: 'Total Slots',      key: 'totalSlots', type: 'number', placeholder: 'e.g. 100' },
               ].map(({ label, key, type, placeholder }) => (
                 <div key={key}>
-                  <label className="block text-sm font-semibold text-slate-700 mb-1">{label}</label>
+                  <label className="block text-sm font-semibold text-stone-700 mb-1">{label}</label>
                   <input
                     type={type} value={form[key]} placeholder={placeholder}
                     onChange={e => setForm({ ...form, [key]: e.target.value })}
-                    className="w-full border border-slate-300 p-2.5 rounded-lg outline-none
-                               focus:ring-2 focus:ring-blue-500 text-sm transition-all"
+                    className="w-full border border-stone-300 p-2.5 rounded-md outline-none
+                               focus:ring-2 focus:ring-[#B4431F] text-sm transition-all"
                     required
                   />
                 </div>
               ))}
               <button type="submit" disabled={formLoading}
-                      className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white
-                                 font-bold py-3 rounded-xl mt-2 transition-colors">
+                      className="w-full bg-[#B4431F] hover:bg-[#933515] disabled:bg-[#D9A88F] text-white
+                                 font-bold py-3 rounded mt-2 transition-colors">
                 {formLoading ? 'Creating…' : 'Create Schedule'}
               </button>
             </form>

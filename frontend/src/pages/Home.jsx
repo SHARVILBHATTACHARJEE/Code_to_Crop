@@ -5,7 +5,7 @@ import { getMyBookings } from '../api/firestore';
 import { db } from '../firebase';
 import { useStore } from '../store';
 import { DarkHeader, SectionTitle, StatusPill, TokenBadge, PrimaryBtn, FIcon, CropIcon, LangToggle } from '../components/farm';
-import { useT } from '../components/i18n';
+import { useT, cropName, placeName, formatDate } from '../components/i18n';
 
 export default function Home() {
   const user     = useStore((s) => s.user);
@@ -99,7 +99,7 @@ export default function Home() {
                 >
                   <div className="min-w-0">
                     <TokenBadge token={b.tokenNumber} />
-                    <p className="text-xs text-stone-500 mt-1.5 truncate">{b.cropType} · {b.quantityKg} {tr('kgUnit')} · {b.centerName}</p>
+                    <p className="text-xs text-stone-500 mt-1.5 truncate">{cropName(b.cropType, lang)} · {b.quantityKg} {tr('kgUnit')} · {placeName(b.centerName, lang)}</p>
                     <div className="mt-1.5"><StatusPill status={b.status} small /></div>
                   </div>
                   <FIcon name="arrowR" className="text-lg text-stone-300 shrink-0" />
@@ -137,7 +137,7 @@ export default function Home() {
                         <CropIcon type={s.cropType} />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="font-display text-lg font-semibold text-stone-900 tracking-tight leading-tight truncate">{s.cropType}</p>
+                        <p className="font-display text-lg font-semibold text-stone-900 tracking-tight leading-tight truncate">{cropName(s.cropType, lang)}</p>
                         <p className="text-xs font-bold text-[#8A5A12]">{tr('msp')} ₹{s.mspRate}/{tr('qtl')}</p>
                       </div>
                       <span className={'shrink-0 text-[11px] font-semibold px-2 py-0.5 rounded border whitespace-nowrap ' + (full ? 'bg-stone-100 text-stone-500 border-stone-200' : 'bg-[#E9EDDB] text-[#44532F] border-[#CFD8B8]')}>
@@ -147,11 +147,11 @@ export default function Home() {
                     <div className="px-4 pb-3 space-y-1.5">
                       <div className="flex items-center gap-2 text-xs text-stone-500">
                         <FIcon name="calendar" className="text-sm text-[#8A5A12] shrink-0" />
-                        <span className="truncate">{s.date} &nbsp;({s.startTime} – {s.endTime})</span>
+                        <span className="truncate">{formatDate(s.date, lang)} &nbsp;({s.startTime} – {s.endTime})</span>
                       </div>
                       <div className="flex items-center gap-2 text-xs text-stone-500">
                         <FIcon name="pin" className="text-sm text-[#5C6E46] shrink-0" />
-                        <span className="truncate">{s.centerName}</span>
+                        <span className="truncate">{placeName(s.centerName, lang)}</span>
                       </div>
                     </div>
                     <div className="px-4 py-3 border-t border-stone-100 flex justify-end">

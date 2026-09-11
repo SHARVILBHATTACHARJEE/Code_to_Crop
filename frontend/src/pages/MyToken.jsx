@@ -4,12 +4,14 @@ import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
 import { QRCodeSVG } from 'qrcode.react';
 import { DarkHeader, FIcon, CropIcon, LiveDot, LangToggle } from '../components/farm';
-import { useT } from '../components/i18n';
+import { useStore } from '../store';
+import { useT, cropName, placeName, formatDate } from '../components/i18n';
 
 export default function MyToken() {
   const { bookingId } = useParams();
   const navigate       = useNavigate();
   const tr             = useT();
+  const lang           = useStore((s) => s.lang);
   const [booking, setBooking] = useState(null);
 
   useEffect(() => {
@@ -73,15 +75,15 @@ export default function MyToken() {
           <div className="border-t border-stone-100 px-5 py-4 space-y-2.5" style={{ background: '#FAF6EC' }}>
             <div className="flex items-center gap-2 text-xs text-stone-600">
               <FIcon name="clock" className="text-sm text-[#3E6B8C] shrink-0" />
-              <span className="truncate">{booking.date} · {tr('slotWord')} {booking.slotTime}</span>
+              <span className="truncate">{formatDate(booking.date, lang)} · {tr('slotWord')} {booking.slotTime}</span>
             </div>
             <div className="flex items-center gap-2 text-xs text-stone-600">
               <FIcon name="pin" className="text-sm text-[#5C6E46] shrink-0" />
-              <span className="truncate">{booking.centerName}</span>
+              <span className="truncate">{placeName(booking.centerName, lang)}</span>
             </div>
             <div className="flex items-center gap-2 text-xs text-stone-600">
               <span className="text-sm text-[#8A5A12] inline-flex shrink-0"><CropIcon type={booking.cropType} /></span>
-              <span className="truncate">{booking.cropType} · {booking.quantityKg} {tr('kgUnit')} · {tr('msp')} ₹{booking.mspRate}/{tr('qtl')}</span>
+              <span className="truncate">{cropName(booking.cropType, lang)} · {booking.quantityKg} {tr('kgUnit')} · {tr('msp')} ₹{booking.mspRate}/{tr('qtl')}</span>
             </div>
           </div>
         </div>

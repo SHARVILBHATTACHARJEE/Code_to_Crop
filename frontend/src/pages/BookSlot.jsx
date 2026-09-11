@@ -5,7 +5,7 @@ import { db } from '../firebase';
 import { bookSlot } from '../api/firestore';
 import { useStore } from '../store';
 import { DarkHeader, PrimaryBtn, TextInput, FIcon, LangToggle } from '../components/farm';
-import { useT, t } from '../components/i18n';
+import { useT, t, cropName, placeName, formatDate } from '../components/i18n';
 
 const TIME_SLOTS = [
   '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00',
@@ -61,13 +61,13 @@ export default function BookSlot() {
           </button>
         }
         title={tr('bookASlot')}
-        sub={`${schedule.cropType} · ${schedule.centerName}`}
+        sub={`${cropName(schedule.cropType, lang)} · ${placeName(schedule.centerName, lang)}`}
         right={<LangToggle />}
       />
 
       <div className="bg-[#F7ECD4] border-b border-[#E5CF9F] px-4 py-3 flex items-center justify-between gap-2 text-xs">
         <span className="flex items-center gap-1.5 text-stone-600 min-w-0">
-          <FIcon name="calendar" className="text-sm text-[#8A5A12] shrink-0" /> <span className="truncate">{schedule.date}</span>
+          <FIcon name="calendar" className="text-sm text-[#8A5A12] shrink-0" /> <span className="truncate">{formatDate(schedule.date, lang)}</span>
         </span>
         <span className="font-bold text-[#8A5A12] whitespace-nowrap">{tr('msp')} ₹{schedule.mspRate}/{tr('qtl')}</span>
         <span className="text-stone-500 font-medium whitespace-nowrap">{slotsLeft} {tr('slotsLeft')}</span>

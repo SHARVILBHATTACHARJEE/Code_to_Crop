@@ -4,7 +4,7 @@ import { collection, onSnapshot, query } from 'firebase/firestore';
 import { getMyBookings } from '../api/firestore';
 import { db } from '../firebase';
 import { useStore } from '../store';
-import { MapPin, Calendar, ArrowRight, LogOut, Wheat } from 'lucide-react';
+import { DarkHeader, SectionTitle, StatusPill, TokenBadge, PrimaryBtn, FIcon, CropIcon } from '../components/farm';
 
 export default function Home() {
   const user     = useStore((s) => s.user);
@@ -40,52 +40,65 @@ export default function Home() {
     return () => unsub();
   }, [user.id]);
 
-  const statusColor = (status) => {
-    const map = {
-      Queued: 'bg-gray-100 text-gray-700',
-      Weighed: 'bg-blue-100 text-blue-700',
-      'Quality Checked': 'bg-purple-100 text-purple-700',
-      Approved: 'bg-yellow-100 text-yellow-700',
-      'Payment Initiated': 'bg-orange-100 text-orange-700',
-      Paid: 'bg-green-100 text-green-700',
-    };
-    return map[status] || 'bg-gray-100 text-gray-700';
-  };
+  const todayStr = new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'short' });
 
   return (
-    <div className="pb-6">
-      {/* Header */}
-      <header className="bg-green-600 text-white p-4 flex justify-between items-center shadow-md sticky top-0 z-10">
-        <div className="flex items-center gap-2">
-          <Wheat size={22} />
-          <span className="text-lg font-bold">FarmConnect</span>
-        </div>
-        <div className="flex items-center gap-3">
-          <span className="text-sm opacity-80">👤 {user.name}</span>
-          <LogOut size={18} className="cursor-pointer opacity-80" onClick={() => { logout(); navigate('/login'); }} />
-        </div>
-      </header>
+    <div className="pb-8">
+      <DarkHeader
+        left={
+          <div className="h-9 w-9 rounded-md flex items-center justify-center text-white text-xl shrink-0"
+               style={{ background: '#B4431F' }}>
+            <FIcon name="wheat" />
+          </div>
+        }
+        title="FarmConnect"
+        sub="Farmer App"
+        right={
+          <>
+            <span className="flex items-center gap-1.5 text-xs text-stone-300 max-w-[110px]">
+              <FIcon name="user" className="text-sm text-[#DE9A63] shrink-0" />
+              <span className="truncate">{user.name}</span>
+            </span>
+            <button onClick={() => { logout(); navigate('/login'); }} aria-label="Logout"
+                    className="p-2 rounded-md text-stone-400 hover:text-[#DE9A63] hover:bg-white/5 transition-colors">
+              <FIcon name="logout" className="text-base" />
+            </button>
+          </>
+        }
+      />
 
       <div className="p-4 space-y-6">
+        {/* Welcome */}
+        <section className="rounded-md border border-[#E5CF9F] p-4 flex items-center gap-3"
+                 style={{ background: '#F7ECD4' }}>
+          <div className="min-w-0">
+            <p className="text-[10px] font-bold tracking-[0.18em] text-[#8A5A12] uppercase">Namaste</p>
+            <h2 className="font-display text-xl font-semibold text-stone-900 tracking-tight leading-snug truncate">{user.name}</h2>
+            <p className="text-xs text-stone-500 mt-0.5">{todayStr} · {bookings.length} active tokens · {schedules.length} upcoming drives</p>
+          </div>
+          <span className="ml-auto text-4xl text-[#B4431F]/70 shrink-0"><FIcon name="wheat" /></span>
+        </section>
+
         {/* Active Tokens */}
         {bookings.length > 0 && (
           <section>
-            <h2 className="text-base font-bold text-gray-800 mb-3">📋 My Active Tokens</h2>
+            <SectionTitle icon={<FIcon name="ticket" />}
+                          aside={<span className="text-[11px] font-semibold text-[#8A5A12] bg-[#F4E8CF] border border-[#E5CF9F] px-2 py-0.5 rounded">{bookings.length} active</span>}>
+              My Active Tokens
+            </SectionTitle>
             <div className="space-y-3">
               {bookings.map((b) => (
                 <div
                   key={b.id}
                   onClick={() => navigate(`/token/${b.id}`)}
-                  className="bg-white border border-green-100 rounded-2xl p-4 flex justify-between items-center shadow-sm cursor-pointer active:scale-95 transition"
+                  className="bg-white border border-stone-200/80 rounded-md p-4 flex justify-between items-center gap-3 shadow-sm cursor-pointer active:scale-[0.98] transition hover:border-[#B4431F]/40"
                 >
-                  <div>
-                    <p className="font-black text-green-700 text-lg tracking-wider">{b.tokenNumber}</p>
-                    <p className="text-sm text-gray-500">{b.cropType} · {b.quantityKg} kg · {b.centerName}</p>
-                    <span className={`mt-1 inline-block text-xs font-semibold px-2 py-0.5 rounded-full ${statusColor(b.status)}`}>
-                      {b.status}
-                    </span>
+                  <div className="min-w-0">
+                    <TokenBadge token={b.tokenNumber} />
+                    <p className="text-xs text-stone-500 mt-1.5 truncate">{b.cropType} · {b.quantityKg} kg · {b.centerName}</p>
+                    <div className="mt-1.5"><StatusPill status={b.status} small /></div>
                   </div>
-                  <ArrowRight className="text-gray-300" />
+                  <FIcon name="arrowR" className="text-lg text-stone-300 shrink-0" />
                 </div>
               ))}
             </div>
@@ -94,47 +107,61 @@ export default function Home() {
 
         {/* Upcoming Schedules */}
         <section>
-          <h2 className="text-base font-bold text-gray-800 mb-3">🌾 Upcoming Procurement</h2>
+          <SectionTitle icon={<FIcon name="calendar" />}>Upcoming Procurement</SectionTitle>
           {loading ? (
             <div className="space-y-3">
-              {[1,2,3].map(i => <div key={i} className="h-32 bg-gray-100 rounded-2xl animate-pulse" />)}
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="h-28 bg-white border border-stone-200/60 rounded-md flex items-center justify-center">
+                  <FIcon name="wheat" className="text-2xl text-stone-200" />
+                </div>
+              ))}
             </div>
           ) : schedules.length === 0 ? (
-            <div className="text-center text-gray-400 py-10 bg-white rounded-2xl shadow-sm">
-              No upcoming schedules found.
+            <div className="text-center py-10 bg-white border border-stone-200/60 rounded-md shadow-sm">
+              <FIcon name="calendar" className="text-3xl text-stone-300 mx-auto mb-2" />
+              <p className="text-sm font-medium text-stone-500">No upcoming schedules found.</p>
             </div>
           ) : (
             <div className="space-y-4">
-              {schedules.map((s) => (
-                <div key={s.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                  <div className="bg-green-600 text-white px-4 py-2 flex justify-between items-center">
-                    <span className="font-bold text-lg">{s.cropType}</span>
-                    <span className="text-sm font-semibold opacity-90">MSP ₹{s.mspRate}/Qtl</span>
-                  </div>
-                  <div className="p-4 space-y-2">
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <Calendar size={15} className="text-green-500" />
-                      <span>{s.date} &nbsp;({s.startTime} – {s.endTime})</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <MapPin size={15} className="text-green-500" />
-                      <span>{s.centerName}</span>
-                    </div>
-                    <div className="flex justify-between items-center pt-3 border-t border-gray-100 mt-2">
-                      <span className="text-xs text-gray-400">
-                        {s.totalSlots - s.bookedSlots} slots remaining
+              {schedules.map((s) => {
+                const slotsLeft = s.totalSlots - s.bookedSlots;
+                const full = slotsLeft <= 0;
+                return (
+                  <div key={s.id} className="bg-white rounded-md shadow-sm border border-stone-200/80 overflow-hidden">
+                    <div className="p-4 flex items-center gap-3">
+                      <div className="w-10 h-10 rounded bg-[#F4E8CF] text-[#8A5A12] text-xl flex items-center justify-center shrink-0">
+                        <CropIcon type={s.cropType} />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-display text-lg font-semibold text-stone-900 tracking-tight leading-tight truncate">{s.cropType}</p>
+                        <p className="text-xs font-bold text-[#8A5A12]">MSP ₹{s.mspRate}/Qtl</p>
+                      </div>
+                      <span className={'ml-auto shrink-0 text-[11px] font-semibold px-2 py-0.5 rounded border ' + (full ? 'bg-stone-100 text-stone-500 border-stone-200' : 'bg-[#E9EDDB] text-[#44532F] border-[#CFD8B8]')}>
+                        {full ? 'House full' : `${slotsLeft} slots left`}
                       </span>
-                      <button
-                        onClick={() => navigate(`/book/${s.id}`)}
-                        disabled={s.totalSlots - s.bookedSlots <= 0}
-                        className="bg-green-600 disabled:bg-gray-300 text-white text-sm font-bold px-4 py-2 rounded-xl"
-                      >
-                        {s.totalSlots - s.bookedSlots <= 0 ? 'Full' : 'Book Slot →'}
-                      </button>
+                    </div>
+                    <div className="px-4 pb-3 space-y-1.5">
+                      <div className="flex items-center gap-2 text-xs text-stone-500">
+                        <FIcon name="calendar" className="text-sm text-[#8A5A12] shrink-0" />
+                        <span>{s.date} &nbsp;({s.startTime} – {s.endTime})</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-stone-500">
+                        <FIcon name="pin" className="text-sm text-[#5C6E46] shrink-0" />
+                        <span className="truncate">{s.centerName}</span>
+                      </div>
+                    </div>
+                    <div className="px-4 py-3 border-t border-stone-100 flex justify-end">
+                      {full ? (
+                        <span className="text-xs font-semibold text-stone-400 bg-stone-100 border border-stone-200 px-3 py-2 rounded">Full</span>
+                      ) : (
+                        <PrimaryBtn small onClick={() => navigate(`/book/${s.id}`)}>
+                          Book Slot <FIcon name="arrowR" className="text-sm" />
+                        </PrimaryBtn>
+                      )}
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </section>

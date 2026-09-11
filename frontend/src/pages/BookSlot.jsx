@@ -4,7 +4,7 @@ import { getDoc, doc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { bookSlot } from '../api/firestore';
 import { useStore } from '../store';
-import { ArrowLeft, Info } from 'lucide-react';
+import { DarkHeader, PrimaryBtn, TextInput, FIcon } from '../components/farm';
 
 const TIME_SLOTS = [
   '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00',
@@ -41,49 +41,45 @@ export default function BookSlot() {
   };
 
   if (!schedule) return (
-    <div className="flex items-center justify-center min-h-screen">
-      <div className="animate-spin rounded-full h-10 w-10 border-4 border-green-500 border-t-transparent" />
+    <div className="flex items-center justify-center min-h-screen" style={{ background: '#F6F1E8' }}>
+      <div className="animate-spin rounded-full h-10 w-10 border-4 border-[#B4431F] border-t-transparent" />
     </div>
   );
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-green-600 text-white p-4 sticky top-0 flex items-center gap-3 shadow-sm z-10">
-        <ArrowLeft className="cursor-pointer" onClick={() => navigate(-1)} />
-        <div>
-          <h1 className="text-lg font-bold">Book a Slot</h1>
-          <p className="text-xs opacity-80">{schedule.cropType} · {schedule.centerName}</p>
-        </div>
-      </header>
+  const slotsLeft = schedule.totalSlots - schedule.bookedSlots;
 
-      {/* Schedule Info Banner */}
-      <div className="bg-green-50 border-b border-green-100 px-4 py-3 flex justify-between text-sm">
-        <span className="text-gray-600">📅 {schedule.date}</span>
-        <span className="text-green-700 font-bold">MSP ₹{schedule.mspRate}/Qtl</span>
-        <span className="text-gray-600">{schedule.totalSlots - schedule.bookedSlots} slots left</span>
+  return (
+    <div className="min-h-screen pb-8" style={{ background: '#F6F1E8' }}>
+      <DarkHeader
+        left={
+          <button onClick={() => navigate(-1)} aria-label="Back"
+                  className="p-2 -ml-2 rounded-md text-stone-400 hover:text-[#DE9A63] hover:bg-white/5 transition-colors">
+            <FIcon name="arrowL" className="text-lg" />
+          </button>
+        }
+        title="Book a Slot"
+        sub={`${schedule.cropType} · ${schedule.centerName}`}
+      />
+
+      <div className="bg-[#F7ECD4] border-b border-[#E5CF9F] px-4 py-3 flex items-center justify-between text-xs">
+        <span className="flex items-center gap-1.5 text-stone-600">
+          <FIcon name="calendar" className="text-sm text-[#8A5A12]" /> {schedule.date}
+        </span>
+        <span className="font-bold text-[#8A5A12]">MSP ₹{schedule.mspRate}/Qtl</span>
+        <span className="text-stone-500 font-medium">{slotsLeft} slots left</span>
       </div>
 
       <form onSubmit={handleBook} className="p-5 space-y-5">
-        {/* Quantity */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">
+          <label className="block text-xs font-semibold text-stone-600 mb-1.5 uppercase tracking-wider">
             Estimated Quantity (kg)
           </label>
-          <input
-            type="number"
-            value={quantity}
-            onChange={(e) => setQuantity(e.target.value)}
-            placeholder="e.g. 500"
-            min="10"
-            className="w-full border border-gray-300 p-3 rounded-xl outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200 text-lg"
-            required
-          />
+          <TextInput type="number" value={quantity} onChange={(e) => setQuantity(e.target.value)}
+                     placeholder="e.g. 500" min="10" className="text-lg py-3.5" required />
         </div>
 
-        {/* Time Slot */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
+          <label className="block text-xs font-semibold text-stone-600 mb-2 uppercase tracking-wider">
             Preferred Time Slot
           </label>
           <div className="grid grid-cols-4 gap-2">
@@ -92,10 +88,9 @@ export default function BookSlot() {
                 key={t}
                 type="button"
                 onClick={() => setSlotTime(t)}
-                className={`py-2 rounded-xl text-sm font-medium border transition
-                  ${slotTime === t
-                    ? 'bg-green-600 text-white border-green-600'
-                    : 'bg-white text-gray-600 border-gray-200'}`}
+                className={'py-2.5 rounded-md text-xs font-semibold border transition ' + (slotTime === t
+                  ? 'bg-[#B4431F] text-white border-[#B4431F] shadow-sm'
+                  : 'bg-white text-stone-600 border-stone-300 hover:border-[#B4431F]/50')}
               >
                 {t}
               </button>
@@ -103,21 +98,16 @@ export default function BookSlot() {
           </div>
         </div>
 
-        {/* Info Box */}
-        <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 flex gap-3">
-          <Info size={18} className="text-blue-500 shrink-0 mt-0.5" />
-          <p className="text-sm text-blue-800">
+        <div className="bg-[#E4EBF0] border border-[#C3D2DC] rounded-md p-4 flex gap-3">
+          <FIcon name="info" className="text-lg text-[#3E6B8C] shrink-0 mt-0.5" />
+          <p className="text-xs leading-relaxed text-[#37556E]">
             Your token guarantees service within a 1-hour window. Please arrive 15 minutes early with your produce.
           </p>
         </div>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-green-600 text-white font-bold py-4 rounded-xl shadow-md disabled:bg-green-300 text-lg"
-        >
-          {loading ? 'Confirming...' : '✅ Confirm Booking'}
-        </button>
+        <PrimaryBtn type="submit" disabled={loading} className="w-full py-4 text-base">
+          {loading ? 'Confirming...' : 'Confirm Booking'}
+        </PrimaryBtn>
       </form>
     </div>
   );

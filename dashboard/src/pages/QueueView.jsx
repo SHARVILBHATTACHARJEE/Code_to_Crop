@@ -275,7 +275,7 @@ function PageHeader({ title, subtitle, badge, search, setSearch }) {
             {badge}
           </span>
         </div>
-        <p className="text-xs text-stone-500 mt-1">{subtitle}</p>
+        {subtitle ? <p className="text-xs text-stone-500 mt-1">{subtitle}</p> : null}
       </div>
       <div className="flex items-center gap-3 flex-wrap">
         <div className="relative w-72 lg:w-80">
@@ -522,7 +522,7 @@ function AllBookings({ bookings, search, setSearch, handleStatusUpdate, stats })
 
   return (
     <>
-      <PageHeader title="All Bookings" subtitle="Real-time gate passes, weighbridge allocation, and payment status"
+      <PageHeader title="All Bookings"
                   badge={`${bookings.length} total • Today`} search={search} setSearch={setSearch} />
       <MetricsBar cards={metricCards} />
       <TableCard headers={COLS} rows={rows} total={bookings.length} filtered={filtered.length} />

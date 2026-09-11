@@ -70,6 +70,7 @@ const Icon = {
   receipt: <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg>,
   bolt:    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg>,
   arrow:   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 6l6 6-6 6M19 12H5" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg>,
+  menu:    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" strokeLinecap="round" strokeWidth="2"/></svg>,
   close:   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg>,
   wheat:   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 22V8" strokeLinecap="round" strokeWidth="2"/><path d="M12 8C12 4.7 9.6 2.6 6.2 2.6c0 3.4 2.4 5.4 5.8 5.4z" strokeLinejoin="round" strokeWidth="1.8"/><path d="M12 8c0-3.3 2.4-5.4 5.8-5.4 0 3.4-2.4 5.4-5.8 5.4z" strokeLinejoin="round" strokeWidth="1.8"/><path d="M12 13c-1.6 0-3.8-.6-5-2M12 16.5c1.6 0 3.8-.6 5-2" strokeLinecap="round" strokeWidth="1.8"/></svg>,
   rice:    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6.5 10h11l-1.3 9.2a2 2 0 01-2 1.8H9.8a2 2 0 01-2-1.8L6.5 10z" strokeLinejoin="round" strokeWidth="2"/><path d="M6.5 10c0-2.2 2.4-3.5 5.5-3.5s5.5 1.3 5.5 3.5" strokeWidth="2"/><path d="M12 6.5V4M9.5 13.5h5" strokeLinecap="round" strokeWidth="1.8"/></svg>,
@@ -124,7 +125,7 @@ function cropIcon(type) {
   return Icon.wheat;
 }
 
-function Sidebar({ user, stats, bookings, volumePct, activeView, setView, showForm, setShowForm, logout, navigate }) {
+function Sidebar({ user, stats, bookings, volumePct, activeView, setView, setShowForm, logout, navigate, open, onClose }) {
   const navItems = [
     { id: 'bookings',    icon: Icon.ticket,   label: 'All Bookings' },
     { id: 'weighbridge', icon: Icon.weighbridge,  label: 'Weighbridge Station' },
@@ -136,7 +137,7 @@ function Sidebar({ user, stats, bookings, volumePct, activeView, setView, showFo
 
   return (
     <aside
-      className="w-72 flex flex-col justify-between p-5 text-white shrink-0 select-none border-r border-stone-800/60"
+      className={'fixed inset-y-0 left-0 z-40 w-72 max-w-[85vw] flex flex-col justify-between p-5 text-white shrink-0 select-none border-r border-stone-800/60 transition-transform duration-200 lg:static lg:z-auto lg:translate-x-0 ' + (open ? 'translate-x-0' : '-translate-x-full')}
       style={{ background: '#221A13' }}
     >
       <div className="space-y-5">
@@ -155,6 +156,11 @@ function Sidebar({ user, stats, bookings, volumePct, activeView, setView, showFo
             <p className="text-[11px] text-stone-400">Officer Portal • {user.centerName || 'Mandi Central'}</p>
           </div>
         </div>
+
+        <button onClick={onClose} aria-label="Close menu"
+                className="lg:hidden absolute top-4 right-4 p-2 rounded-md text-stone-400 hover:text-white hover:bg-white/10 transition-colors">
+          {Icon.close}
+        </button>
 
         {/* Officer card */}
         <div className="rounded-md p-3.5 border border-stone-800/80 shadow-sm backdrop-blur-sm"
@@ -278,7 +284,7 @@ function PageHeader({ title, subtitle, badge, search, setSearch }) {
         {subtitle ? <p className="text-xs text-stone-500 mt-1">{subtitle}</p> : null}
       </div>
       <div className="flex items-center gap-3 flex-wrap">
-        <div className="relative w-72 lg:w-80">
+        <div className="relative w-full sm:w-72 lg:w-80">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-stone-400">{Icon.search}</div>
           <input
             type="text"
@@ -895,6 +901,7 @@ export default function QueueView() {
   const [search,      setSearch]      = useState('');
   const [activeView,  setActiveView]  = useState('bookings');
   const [showForm,    setShowForm]    = useState(false);
+  const [navOpen,      setNavOpen]      = useState(false);
   const [formLoading, setFormLoading] = useState(false);
   const [form, setForm] = useState({
     cropType: '', date: '', startTime: '09:00', endTime: '17:00', mspRate: '', totalSlots: '50',
@@ -950,33 +957,47 @@ export default function QueueView() {
   const volumePct = stats.totalKg > 0 ? Math.round((stats.paidKg / stats.totalKg) * 100) : 0;
 
   /* Reset search when switching views */
-  const setView = v => { setActiveView(v); setSearch(''); };
+  const setView = v => { setActiveView(v); setSearch(''); setNavOpen(false); };
 
   const sharedProps = { bookings, search, setSearch, handleStatusUpdate, stats };
 
   return (
-    <div className="flex h-screen overflow-hidden" style={{ fontFamily: "'Inter', sans-serif", background: '#F6F1E8' }}>
+    <div className="flex h-dvh overflow-hidden" style={{ fontFamily: "'Inter', sans-serif", background: '#F6F1E8' }}>
 
       {/* ── SIDEBAR ── */}
       <Sidebar
         user={user} stats={stats} bookings={bookings} volumePct={volumePct}
         activeView={activeView} setView={setView}
-        showForm={showForm} setShowForm={setShowForm}
+        setShowForm={setShowForm}
         logout={logout} navigate={navigate}
+        open={navOpen} onClose={() => setNavOpen(false)}
       />
+      {navOpen && (
+        <div onClick={() => setNavOpen(false)} className="fixed inset-0 z-30 bg-black/50 lg:hidden" />
+      )}
 
       {/* ── MAIN CONTENT ── */}
-      <main className="flex-1 flex flex-col min-w-0 overflow-y-auto p-6 lg:p-8" style={{ background: '#F6F1E8' }}>
+      <main className="flex-1 flex flex-col min-w-0 overflow-y-auto" style={{ background: '#F6F1E8' }}>
+        <div className="lg:hidden sticky top-0 z-20 flex items-center gap-3 px-4 py-3 text-white shadow-md" style={{ background: '#221A13' }}>
+          <button onClick={() => setNavOpen(true)} aria-label="Open menu"
+                  className="p-2 -ml-2 rounded-md text-stone-300 hover:text-white hover:bg-white/10 transition-colors">
+            {Icon.menu}
+          </button>
+          <span className="font-display font-semibold tracking-tight truncate">FarmConnect</span>
+          <span className="ml-auto text-[11px] font-mono text-stone-400 whitespace-nowrap">{stats.total} tokens</span>
+        </div>
+        <div className="p-4 sm:p-6 lg:p-8">
         {activeView === 'bookings'    && <AllBookings       {...sharedProps} />}
         {activeView === 'weighbridge' && <WeighbridgeStation {...sharedProps} />}
         {activeView === 'qc'          && <QCLab             {...sharedProps} />}
         {activeView === 'payment'     && <PaymentSettlement  {...sharedProps} />}
+        </div>
       </main>
 
       {/* ── CREATE SCHEDULE MODAL ── */}
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.55)' }}>
-          <div className="bg-white rounded-md shadow-2xl w-full max-w-md p-6">
+          <div className="bg-white rounded-md shadow-2xl w-full max-w-md p-6 max-h-[90dvh] overflow-y-auto">
             <div className="flex justify-between items-center mb-5">
               <h3 className="font-display text-lg font-semibold text-stone-900 tracking-tight">New Procurement Schedule</h3>
               <button onClick={() => setShowForm(false)}>

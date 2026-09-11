@@ -84,6 +84,7 @@ const Icon = {
   ticket:  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 8a2 2 0 002-2h12a2 2 0 002 2v1.5a2.5 2.5 0 000 5V16a2 2 0 00-2 2H6a2 2 0 00-2-2v-1.5a2.5 2.5 0 000-5V8z" strokeLinejoin="round" strokeWidth="1.8"/><path d="M13.5 7.5v1.8M13.5 11.1v1.8M13.5 14.7v1.8" strokeLinecap="round" strokeWidth="1.8"/></svg>,
   timer:   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="13.5" r="7.5" strokeWidth="2"/><path d="M12 10v3.5l2.5 2.5M9.5 2.5h5" strokeLinecap="round" strokeWidth="1.8"/></svg>,
   transfer: <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 8.5h12.5L13.5 5.5M20 15.5H7.5l3 3" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg>,
+  calendar: <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16" rx="2" strokeWidth="2"/><path d="M8 2.5v4M16 2.5v4M3 9.5h18" strokeLinecap="round" strokeWidth="2"/></svg>,
 };
 
 /* ─────────────────────────────────────────────
@@ -128,6 +129,7 @@ function cropIcon(type) {
 function Sidebar({ user, stats, bookings, volumePct, activeView, setView, setShowForm, logout, navigate, open, onClose }) {
   const navItems = [
     { id: 'bookings',    icon: Icon.ticket,   label: 'All Bookings' },
+    { id: 'schedules',   icon: Icon.calendar, label: 'Procurement Schedules' },
     { id: 'weighbridge', icon: Icon.weighbridge,  label: 'Weighbridge Station' },
     { id: 'qc',          icon: Icon.flask,  label: 'QC Testing Lab' },
     { id: 'payment',     icon: Icon.rupee, label: 'Payment Settlement' },
@@ -338,7 +340,7 @@ function MetricsBar({ cards }) {
 }
 
 /** Table wrapper with pagination footer */
-function TableCard({ headers, rows, total, filtered }) {
+function TableCard({ headers, rows, total, filtered, emptyTitle, emptySub }) {
   return (
     <div className="bg-white rounded-md border border-stone-200/60 overflow-hidden flex flex-col"
          style={{ boxShadow: '0 4px 20px -2px rgba(0,0,0,0.03), 0 0 3px rgba(0,0,0,0.02)' }}>
@@ -366,9 +368,9 @@ function TableCard({ headers, rows, total, filtered }) {
                 <div className="w-12 h-12 rounded-full bg-stone-50 flex items-center justify-center mb-3 border border-stone-100">
                   {Icon.search}
                 </div>
-                <p className="text-sm font-medium text-stone-600">No bookings found</p>
+                <p className="text-sm font-medium text-stone-600">{emptyTitle || 'No bookings found'}</p>
                 <p className="text-[11px] mt-1 text-stone-400 text-center max-w-sm">
-                  There are currently no crops matching this search. Make sure farmers have booked slots for today.
+                  {emptySub || 'There are currently no crops matching this search. Make sure farmers have booked slots for today.'}
                 </p>
               </div>
             ) : rows}
@@ -890,6 +892,111 @@ function PaymentSettlement({ bookings, search, setSearch, handleStatusUpdate, st
 }
 
 /* ═══════════════════════════════════════════════════
+   VIEW: PROCUREMENT SCHEDULES
+═══════════════════════════════════════════════════ */
+function SchedulesView({ schedules, search, setSearch }) {
+  const filtered = schedules.filter(s =>
+    (s.cropType || '').toLowerCase().includes(search.trim().toLowerCase())
+  );
+
+  const today = new Date().toISOString().split('T')[0];
+
+  const COLS = [
+    { label: 'Schedule',    span: 'minmax(0, 1.3fr)', align: 'left'   },
+    { label: 'Date',        span: '120px',             align: 'left'   },
+    { label: 'Time Window', span: '150px',             align: 'left'   },
+    { label: 'MSP (₹/Qtl)', span: '110px',             align: 'right'  },
+    { label: 'Slot Fill',   span: 'minmax(0, 1fr)',    align: 'left'   },
+    { label: 'Status',      span: '130px',             align: 'center' },
+  ];
+
+  const rows = filtered.map(s => {
+    const total  = Number(s.totalSlots || 0);
+    const booked = Number(s.bookedSlots || 0);
+    const pct    = total > 0 ? Math.min(100, Math.round((booked / total) * 100)) : 0;
+    const past   = (s.date || '') < today;
+    const full   = !past && total > 0 && booked >= total;
+    const st     = past ? 'Completed' : full ? 'House Full' : 'Open';
+    const pillCls = st === 'Open'
+      ? 'bg-[#E9EDDB] text-[#44532F] border-[#CFD8B8]'
+      : 'bg-[#F7E3D3] text-[#933515] border-[#E8BFA4]';
+    const dotCls = st === 'Open' ? 'bg-[#5C6E46]' : 'bg-[#B4431F]';
+    const pillFinal = past ? 'bg-stone-100 text-stone-500 border-stone-200' : pillCls;
+    const dotFinal  = past ? 'bg-stone-400' : dotCls;
+    const barBg = full ? '#B4431F' : '#5C6E46';
+    return (
+      <div key={s.id}
+           className="grid items-center px-5 py-3 hover:bg-stone-50/70 transition-colors gap-4"
+           style={{ gridTemplateColumns: COLS.map(c => c.span).join(' ') }}>
+
+        {/* Schedule — left */}
+        <div className="flex items-center gap-2 min-w-0">
+          <div className="w-7 h-7 rounded bg-[#F4E8CF] text-[#8A5A12] flex items-center justify-center shrink-0">{cropIcon(s.cropType)}</div>
+          <div className="min-w-0">
+            <span className="font-medium text-stone-700 block text-xs truncate">{s.cropType}</span>
+            <span className="font-bold text-stone-900 text-xs">MSP ₹{s.mspRate}/Qtl</span>
+          </div>
+        </div>
+
+        {/* Date — left */}
+        <div className="flex items-center">
+          <span className="font-medium text-stone-800 text-xs">{s.date || '—'}</span>
+        </div>
+
+        {/* Time Window — left */}
+        <div className="flex items-center">
+          <span className="text-xs text-stone-500 font-mono">{s.startTime || '—'} – {s.endTime || '—'}</span>
+        </div>
+
+        {/* MSP — right */}
+        <div className="flex items-center justify-end">
+          <span className="font-semibold text-stone-800 text-sm font-mono">₹{s.mspRate}</span>
+        </div>
+
+        {/* Slot Fill — left */}
+        <div className="flex flex-col justify-center gap-1.5 min-w-0">
+          <div className="w-full bg-stone-100 rounded-full h-1.5 overflow-hidden">
+            <div className="h-1.5 rounded-full" style={{ width: `${pct}%`, background: barBg }} />
+          </div>
+          <span className="text-[11px] text-stone-500 font-mono">{booked}/{total} slots</span>
+        </div>
+
+        {/* Status — center */}
+        <div className="flex items-center justify-center">
+          <span className={'inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full font-semibold border text-xs whitespace-nowrap ' + pillFinal}>
+            <span className={'w-1.5 h-1.5 rounded-full ' + dotFinal} />
+            {st}
+          </span>
+        </div>
+      </div>
+    );
+  });
+
+  const totalSlots  = schedules.reduce((sum, s) => sum + Number(s.totalSlots || 0), 0);
+  const bookedSlots = schedules.reduce((sum, s) => sum + Number(s.bookedSlots || 0), 0);
+  const openSlots   = Math.max(0, totalSlots - bookedSlots);
+  const fillRate    = totalSlots > 0 ? Math.round((bookedSlots / totalSlots) * 100) : 0;
+
+  const metricCards = [
+    { label: 'Open Slots',      value: String(openSlots),        unit: 'slots',  tint: 'text-[#B4431F]', icon: Icon.calendar, hero: true },
+    { label: 'Total Schedules', value: String(schedules.length), unit: 'drives', tint: 'text-[#8A5A12]', icon: Icon.wheat },
+    { label: 'Slots Booked',    value: String(bookedSlots),      unit: 'booked', tint: 'text-[#5C6E46]', icon: Icon.ticket },
+    { label: 'Fill Rate',       value: String(fillRate),         unit: '%',      tint: 'text-[#3E6B8C]', icon: Icon.timer },
+  ];
+
+  return (
+    <>
+      <PageHeader title="Procurement Schedules" subtitle="Published drives, slot capacity and booking fill"
+                  badge={`${schedules.length} total · ${openSlots} open`} search={search} setSearch={setSearch} />
+      <MetricsBar cards={metricCards} />
+      <TableCard headers={COLS} rows={rows} total={schedules.length} filtered={filtered.length}
+                 emptyTitle="No schedules found"
+                 emptySub="Publish a procurement schedule to open booking slots for farmers." />
+    </>
+  );
+}
+
+/* ═══════════════════════════════════════════════════
    MAIN COMPONENT
 ═══════════════════════════════════════════════════ */
 export default function QueueView() {
@@ -898,6 +1005,8 @@ export default function QueueView() {
   const navigate = useNavigate();
 
   const [bookings,    setBookings]    = useState([]);
+  const [schedules,   setSchedules]   = useState([]);
+  const [result,      setResult]      = useState(null);
   const [search,      setSearch]      = useState('');
   const [activeView,  setActiveView]  = useState('bookings');
   const [showForm,    setShowForm]    = useState(false);
@@ -926,6 +1035,25 @@ export default function QueueView() {
     return () => unsub();
   }, [user.centerId]);
 
+  /* Real-time schedules for this centre */
+  useEffect(() => {
+    const q = query(collection(db, 'schedules'), where('centerId', '==', user.centerId));
+    const unsub = onSnapshot(q,
+      snap => {
+        const data = snap.docs
+          .map(d => ({ id: d.id, ...d.data() }))
+          .sort((a, b) =>
+            a.date === b.date
+              ? (a.startTime || '').localeCompare(b.startTime || '')
+              : (a.date  || '').localeCompare(b.date  || '')
+          );
+        setSchedules(data);
+      },
+      err => console.error('Schedules snapshot error:', err)
+    );
+    return () => unsub();
+  }, [user.centerId]);
+
   const handleStatusUpdate = async (id, next) => {
     try { await updateBookingStatus(id, next, user.name); }
     catch { alert('Failed to update status'); }
@@ -936,10 +1064,13 @@ export default function QueueView() {
     setFormLoading(true);
     try {
       await createSchedule(user, form);
+      const summary = `${form.cropType || 'Crop'} · ${form.date || ''} · ${form.totalSlots || 0} slots`;
       setShowForm(false);
       setForm({ cropType: '', date: '', startTime: '09:00', endTime: '17:00', mspRate: '', totalSlots: '50' });
-      alert('Schedule created!');
-    } catch { alert('Failed to create schedule'); }
+      setResult({ ok: true, title: 'Schedule published', message: summary + ' is now open for farmer bookings.' });
+    } catch {
+      setResult({ ok: false, title: 'Could not create schedule', message: 'Please check the details and try again.' });
+    }
     finally { setFormLoading(false); }
   };
 
@@ -959,7 +1090,7 @@ export default function QueueView() {
   /* Reset search when switching views */
   const setView = v => { setActiveView(v); setSearch(''); setNavOpen(false); };
 
-  const sharedProps = { bookings, search, setSearch, handleStatusUpdate, stats };
+  const sharedProps = { bookings, schedules, search, setSearch, handleStatusUpdate, stats };
 
   return (
     <div className="flex h-dvh overflow-hidden" style={{ fontFamily: "'Inter', sans-serif", background: '#F6F1E8' }}>
@@ -988,6 +1119,7 @@ export default function QueueView() {
         </div>
         <div className="p-4 sm:p-6 lg:p-8">
         {activeView === 'bookings'    && <AllBookings       {...sharedProps} />}
+        {activeView === 'schedules'   && <SchedulesView     {...sharedProps} />}
         {activeView === 'weighbridge' && <WeighbridgeStation {...sharedProps} />}
         {activeView === 'qc'          && <QCLab             {...sharedProps} />}
         {activeView === 'payment'     && <PaymentSettlement  {...sharedProps} />}
@@ -1030,6 +1162,39 @@ export default function QueueView() {
                 {formLoading ? 'Creating…' : 'Create Schedule'}
               </button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── RESULT POPUP ── */}
+      {result && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.55)' }}>
+          <div className="bg-white rounded-md shadow-2xl w-full max-w-sm p-6 text-center">
+            <div className={'mx-auto h-12 w-12 rounded-full flex items-center justify-center ' + (result.ok ? 'bg-[#E9EDDB] text-[#44532F]' : 'bg-[#F7E3D3] text-[#933515]')}>
+              {result.ok ? (
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5"/></svg>
+              ) : (
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 9v4m0 4h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg>
+              )}
+            </div>
+            <h3 className="font-display text-lg font-semibold text-stone-900 tracking-tight mt-4">{result.title}</h3>
+            <p className="text-xs text-stone-500 mt-1.5 leading-relaxed">{result.message}</p>
+            <div className="flex items-center justify-center gap-2.5 mt-5">
+              {result.ok ? (
+                <>
+                  <PrimaryBtn onClick={() => { setResult(null); setView('schedules'); }}>
+                    <span className="inline-flex">{Icon.calendar}</span><span>View Schedules</span>
+                  </PrimaryBtn>
+                  <GhostBtn onClick={() => setResult(null)}>
+                    <span>Stay Here</span>
+                  </GhostBtn>
+                </>
+              ) : (
+                <PrimaryBtn onClick={() => setResult(null)}>
+                  <span>Try Again</span>
+                </PrimaryBtn>
+              )}
+            </div>
           </div>
         </div>
       )}

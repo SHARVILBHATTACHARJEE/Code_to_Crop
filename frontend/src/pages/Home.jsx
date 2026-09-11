@@ -4,11 +4,14 @@ import { collection, onSnapshot, query } from 'firebase/firestore';
 import { getMyBookings } from '../api/firestore';
 import { db } from '../firebase';
 import { useStore } from '../store';
-import { DarkHeader, SectionTitle, StatusPill, TokenBadge, PrimaryBtn, FIcon, CropIcon } from '../components/farm';
+import { DarkHeader, SectionTitle, StatusPill, TokenBadge, PrimaryBtn, FIcon, CropIcon, LangToggle } from '../components/farm';
+import { useT } from '../components/i18n';
 
 export default function Home() {
   const user     = useStore((s) => s.user);
   const logout   = useStore((s) => s.logout);
+  const lang     = useStore((s) => s.lang);
+  const tr       = useT();
   const navigate = useNavigate();
 
   const [schedules, setSchedules] = useState([]);
@@ -40,7 +43,7 @@ export default function Home() {
     return () => unsub();
   }, [user.id]);
 
-  const todayStr = new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'short' });
+  const todayStr = new Date().toLocaleDateString(lang === 'hi' ? 'hi-IN' : 'en-IN', { weekday: 'long', day: 'numeric', month: 'short' });
 
   return (
     <div className="pb-8">
@@ -51,16 +54,17 @@ export default function Home() {
             <FIcon name="wheat" />
           </div>
         }
-        title="FarmConnect"
-        sub="Farmer App"
+        title={tr('brand')}
+        sub={tr('farmerApp')}
         right={
           <>
-            <span className="flex items-center gap-1.5 text-xs text-stone-300 max-w-[110px]">
+            <LangToggle />
+            <span className="hidden min-[380px]:flex items-center gap-1.5 text-xs text-stone-300 max-w-[110px]">
               <FIcon name="user" className="text-sm text-[#DE9A63] shrink-0" />
               <span className="truncate">{user.name}</span>
             </span>
-            <button onClick={() => { logout(); navigate('/login'); }} aria-label="Logout"
-                    className="p-2 rounded-md text-stone-400 hover:text-[#DE9A63] hover:bg-white/5 transition-colors">
+            <button onClick={() => { logout(); navigate('/login'); }} aria-label={tr('logoutLabel')}
+                    className="p-2 rounded-md text-stone-400 hover:text-[#DE9A63] hover:bg-white/5 transition-colors shrink-0">
               <FIcon name="logout" className="text-base" />
             </button>
           </>
@@ -72,9 +76,9 @@ export default function Home() {
         <section className="rounded-md border border-[#E5CF9F] p-4 flex items-center gap-3"
                  style={{ background: '#F7ECD4' }}>
           <div className="min-w-0">
-            <p className="text-[10px] font-bold tracking-[0.18em] text-[#8A5A12] uppercase">Namaste</p>
+            <p className="text-[10px] font-bold tracking-[0.18em] text-[#8A5A12] uppercase">{tr('welcomeKicker')}</p>
             <h2 className="font-display text-xl font-semibold text-stone-900 tracking-tight leading-snug truncate">{user.name}</h2>
-            <p className="text-xs text-stone-500 mt-0.5">{todayStr} · {bookings.length} active tokens · {schedules.length} upcoming drives</p>
+            <p className="text-xs text-stone-500 mt-0.5">{todayStr} · {bookings.length} {tr('activeTokens')} · {schedules.length} {tr('upcomingDrives')}</p>
           </div>
           <span className="ml-auto text-4xl text-[#B4431F]/70 shrink-0"><FIcon name="wheat" /></span>
         </section>
@@ -83,8 +87,8 @@ export default function Home() {
         {bookings.length > 0 && (
           <section>
             <SectionTitle icon={<FIcon name="ticket" />}
-                          aside={<span className="text-[11px] font-semibold text-[#8A5A12] bg-[#F4E8CF] border border-[#E5CF9F] px-2 py-0.5 rounded">{bookings.length} active</span>}>
-              My Active Tokens
+                          aside={<span className="text-[11px] font-semibold text-[#8A5A12] bg-[#F4E8CF] border border-[#E5CF9F] px-2 py-0.5 rounded">{bookings.length} {tr('activeChip')}</span>}>
+              {tr('myActiveTokens')}
             </SectionTitle>
             <div className="space-y-3">
               {bookings.map((b) => (
@@ -95,7 +99,7 @@ export default function Home() {
                 >
                   <div className="min-w-0">
                     <TokenBadge token={b.tokenNumber} />
-                    <p className="text-xs text-stone-500 mt-1.5 truncate">{b.cropType} · {b.quantityKg} kg · {b.centerName}</p>
+                    <p className="text-xs text-stone-500 mt-1.5 truncate">{b.cropType} · {b.quantityKg} {tr('kgUnit')} · {b.centerName}</p>
                     <div className="mt-1.5"><StatusPill status={b.status} small /></div>
                   </div>
                   <FIcon name="arrowR" className="text-lg text-stone-300 shrink-0" />
@@ -107,7 +111,7 @@ export default function Home() {
 
         {/* Upcoming Schedules */}
         <section>
-          <SectionTitle icon={<FIcon name="calendar" />}>Upcoming Procurement</SectionTitle>
+          <SectionTitle icon={<FIcon name="calendar" />}>{tr('upcomingProc')}</SectionTitle>
           {loading ? (
             <div className="space-y-3">
               {[1, 2, 3].map((i) => (
@@ -119,7 +123,7 @@ export default function Home() {
           ) : schedules.length === 0 ? (
             <div className="text-center py-10 bg-white border border-stone-200/60 rounded-md shadow-sm">
               <FIcon name="calendar" className="text-3xl text-stone-300 mx-auto mb-2" />
-              <p className="text-sm font-medium text-stone-500">No upcoming schedules found.</p>
+              <p className="text-sm font-medium text-stone-500">{tr('noSchedules')}</p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -132,18 +136,18 @@ export default function Home() {
                       <div className="w-10 h-10 rounded bg-[#F4E8CF] text-[#8A5A12] text-xl flex items-center justify-center shrink-0">
                         <CropIcon type={s.cropType} />
                       </div>
-                      <div className="min-w-0">
+                      <div className="min-w-0 flex-1">
                         <p className="font-display text-lg font-semibold text-stone-900 tracking-tight leading-tight truncate">{s.cropType}</p>
-                        <p className="text-xs font-bold text-[#8A5A12]">MSP ₹{s.mspRate}/Qtl</p>
+                        <p className="text-xs font-bold text-[#8A5A12]">{tr('msp')} ₹{s.mspRate}/{tr('qtl')}</p>
                       </div>
-                      <span className={'ml-auto shrink-0 text-[11px] font-semibold px-2 py-0.5 rounded border ' + (full ? 'bg-stone-100 text-stone-500 border-stone-200' : 'bg-[#E9EDDB] text-[#44532F] border-[#CFD8B8]')}>
-                        {full ? 'House full' : `${slotsLeft} slots left`}
+                      <span className={'shrink-0 text-[11px] font-semibold px-2 py-0.5 rounded border whitespace-nowrap ' + (full ? 'bg-stone-100 text-stone-500 border-stone-200' : 'bg-[#E9EDDB] text-[#44532F] border-[#CFD8B8]')}>
+                        {full ? tr('full') : `${slotsLeft} ${tr('slotsLeft')}`}
                       </span>
                     </div>
                     <div className="px-4 pb-3 space-y-1.5">
                       <div className="flex items-center gap-2 text-xs text-stone-500">
                         <FIcon name="calendar" className="text-sm text-[#8A5A12] shrink-0" />
-                        <span>{s.date} &nbsp;({s.startTime} – {s.endTime})</span>
+                        <span className="truncate">{s.date} &nbsp;({s.startTime} – {s.endTime})</span>
                       </div>
                       <div className="flex items-center gap-2 text-xs text-stone-500">
                         <FIcon name="pin" className="text-sm text-[#5C6E46] shrink-0" />
@@ -152,10 +156,10 @@ export default function Home() {
                     </div>
                     <div className="px-4 py-3 border-t border-stone-100 flex justify-end">
                       {full ? (
-                        <span className="text-xs font-semibold text-stone-400 bg-stone-100 border border-stone-200 px-3 py-2 rounded">Full</span>
+                        <span className="text-xs font-semibold text-stone-400 bg-stone-100 border border-stone-200 px-3 py-2 rounded">{tr('full')}</span>
                       ) : (
                         <PrimaryBtn small onClick={() => navigate(`/book/${s.id}`)}>
-                          Book Slot <FIcon name="arrowR" className="text-sm" />
+                          {tr('bookSlot')} <FIcon name="arrowR" className="text-sm" />
                         </PrimaryBtn>
                       )}
                     </div>

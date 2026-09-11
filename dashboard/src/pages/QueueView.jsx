@@ -4,7 +4,7 @@ import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
 import { updateBookingStatus, createSchedule } from '../api/firestore';
 import { useStore } from '../store';
-import { X } from 'lucide-react';
+
 
 /* ─────────────────────────────────────────────
    CONSTANTS
@@ -73,12 +73,14 @@ const Icon = {
   badge:   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg>,
   shield:  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg>,
   done:    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5"/></svg>,
-  print:   <svg className="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg>,
+  print:   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg>,
   crop:    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 2v20M8 5a3 3 0 016 0M7 10a3 3 0 016 0M8 15a3 3 0 016 0" strokeLinecap="round" strokeLinejoin="round"/></svg>,
   eye:     <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg>,
   camera:  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/><path d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg>,
-  receipt: <svg className="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg>,
+  receipt: <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg>,
   bolt:    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg>,
+  arrow:   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 6l6 6-6 6M19 12H5" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg>,
+  close:   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg>,
 };
 
 /* ─────────────────────────────────────────────
@@ -249,7 +251,7 @@ function PageHeader({ title, subtitle, badge, search, setSearch }) {
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">{Icon.search}</div>
           <input
             type="text"
-            placeholder="Search token, farmer or crop..."
+            placeholder="Search by crop name..."
             value={search}
             onChange={e => setSearch(e.target.value)}
             className="block w-full pl-9 pr-12 py-2 text-[13px] text-slate-800 bg-white border border-slate-200/80
@@ -326,7 +328,7 @@ function TableCard({ headers, rows, total, filtered }) {
                 </div>
                 <p className="text-sm font-medium text-slate-600">No bookings found</p>
                 <p className="text-[11px] mt-1 text-slate-400 text-center max-w-sm">
-                  There are currently no records matching your criteria. Make sure farmers have booked slots for today.
+                  There are currently no crops matching this search. Make sure farmers have booked slots for today.
                 </p>
               </div>
             ) : rows}
@@ -419,8 +421,7 @@ function ViewBtn({ label }) {
 ═══════════════════════════════════════════════════ */
 function AllBookings({ bookings, search, setSearch, handleStatusUpdate, stats }) {
   const filtered = bookings.filter(b =>
-    b.tokenNumber?.toLowerCase().includes(search.toLowerCase()) ||
-    b.farmerName?.toLowerCase().includes(search.toLowerCase())
+    (b.cropType || '').toLowerCase().includes(search.trim().toLowerCase())
   );
 
   const COLS = [
@@ -468,9 +469,9 @@ function AllBookings({ bookings, search, setSearch, handleStatusUpdate, stats })
         <div className="flex items-center justify-end">
           {nextStage ? (
             <button onClick={() => handleStatusUpdate(b.id, nextStage)}
-                    className="inline-flex items-center gap-1 bg-slate-900 hover:bg-slate-800 active:scale-95
+                    className="inline-flex items-center gap-1 bg-blue-600 hover:bg-blue-700 active:scale-95
                                text-white text-xs font-medium px-3 py-1.5 rounded-lg shadow-sm transition-all">
-              <span>→</span><span>{nextStage}</span>
+              <span className="inline-flex">{Icon.arrow}</span><span>{nextStage}</span>
             </button>
           ) : (
             <span className="inline-flex items-center gap-1 font-semibold text-xs text-emerald-600 bg-emerald-50/50 px-2 py-1 rounded-md">
@@ -504,8 +505,7 @@ function AllBookings({ bookings, search, setSearch, handleStatusUpdate, stats })
 ═══════════════════════════════════════════════════ */
 function WeighbridgeStation({ bookings, search, setSearch, handleStatusUpdate, stats }) {
   const filtered = bookings.filter(b =>
-    b.tokenNumber?.toLowerCase().includes(search.toLowerCase()) ||
-    b.farmerName?.toLowerCase().includes(search.toLowerCase())
+    (b.cropType || '').toLowerCase().includes(search.trim().toLowerCase())
   );
 
   const COLS = [
@@ -578,11 +578,10 @@ function WeighbridgeStation({ bookings, search, setSearch, handleStatusUpdate, s
             <button onClick={() => handleStatusUpdate(b.id, 'Weighed')}
                     className="inline-flex items-center gap-1 bg-blue-600 hover:bg-blue-500 active:scale-95
                                text-white text-xs font-medium px-3 py-2 rounded-lg shadow-sm transition-all">
-              <span>SAVE &amp; NEXT</span><span>→</span>
+              <span>SAVE &amp; NEXT</span><span className="inline-flex">{Icon.arrow}</span>
             </button>
           ) : (
-            <button className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200
-                               bg-slate-50 hover:bg-slate-100 text-slate-700 font-medium text-xs shadow-sm transition-colors">
+            <button className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-sky-600 hover:bg-sky-700 text-white font-semibold text-xs shadow-sm transition-colors">
               {Icon.print}<span>PRINT TICKET</span>
             </button>
           )}
@@ -613,8 +612,7 @@ function WeighbridgeStation({ bookings, search, setSearch, handleStatusUpdate, s
 ═══════════════════════════════════════════════════ */
 function QCLab({ bookings, search, setSearch, handleStatusUpdate, stats }) {
   const filtered = bookings.filter(b =>
-    b.tokenNumber?.toLowerCase().includes(search.toLowerCase()) ||
-    b.farmerName?.toLowerCase().includes(search.toLowerCase())
+    (b.cropType || '').toLowerCase().includes(search.trim().toLowerCase())
   );
 
   const COLS = [
@@ -703,11 +701,10 @@ function QCLab({ bookings, search, setSearch, handleStatusUpdate, stats }) {
             <button onClick={() => handleStatusUpdate(b.id, 'Quality Checked')}
                     className="inline-flex items-center gap-1 bg-blue-600 hover:bg-blue-500 active:scale-95
                                text-white text-xs font-medium px-3 py-2 rounded-lg shadow-sm transition-all">
-              <span>SAVE &amp; NEXT</span><span>→</span>
+              <span>SAVE &amp; NEXT</span><span className="inline-flex">{Icon.arrow}</span>
             </button>
           ) : qcDone ? (
-            <button className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200
-                               bg-slate-50 hover:bg-slate-100 text-slate-700 font-medium text-xs shadow-sm transition-colors">
+            <button className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs shadow-sm transition-colors">
               {Icon.print}<span>PRINT LAB REPORT</span>
             </button>
           ) : (
@@ -740,8 +737,7 @@ function QCLab({ bookings, search, setSearch, handleStatusUpdate, stats }) {
 ═══════════════════════════════════════════════════ */
 function PaymentSettlement({ bookings, search, setSearch, handleStatusUpdate, stats }) {
   const filtered = bookings.filter(b =>
-    b.tokenNumber?.toLowerCase().includes(search.toLowerCase()) ||
-    b.farmerName?.toLowerCase().includes(search.toLowerCase())
+    (b.cropType || '').toLowerCase().includes(search.trim().toLowerCase())
   );
 
   // No Payment Cert column — removed per user request
@@ -826,11 +822,10 @@ function PaymentSettlement({ bookings, search, setSearch, handleStatusUpdate, st
             <button onClick={() => handleStatusUpdate(b.id, 'Payment Initiated')}
                     className="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white
                                text-xs font-bold px-3 py-2 rounded-lg shadow-sm transition-colors whitespace-nowrap">
-              <span>⚡</span><span>TRIGGER DBT</span>
+              <span className="inline-flex [&_svg]:w-3.5 [&_svg]:h-3.5">{Icon.bolt}</span><span>TRIGGER DBT</span>
             </button>
           ) : paid ? (
-            <button className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200
-                               bg-slate-50 hover:bg-slate-100 text-slate-700 font-medium text-xs shadow-sm transition-colors">
+            <button className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-violet-600 hover:bg-violet-700 text-white font-semibold text-xs shadow-sm transition-colors">
               {Icon.receipt}<span>RECEIPT</span>
             </button>
           ) : (
@@ -961,7 +956,7 @@ export default function QueueView() {
             <div className="flex justify-between items-center mb-5">
               <h3 className="text-lg font-bold text-slate-800">New Procurement Schedule</h3>
               <button onClick={() => setShowForm(false)}>
-                <X className="text-slate-400 hover:text-slate-700 transition-colors" size={20} />
+                <span className="text-slate-400 hover:text-slate-700 transition-colors inline-flex">{Icon.close}</span>
               </button>
             </div>
             <form onSubmit={handleCreateSchedule} className="space-y-4">

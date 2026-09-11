@@ -2,6 +2,8 @@
    terracotta primary #B4431F, olive #5C6E46, wheat tints, warm charcoal
    headers, Fraunces display type, sharp corners, pills only for status. */
 
+import { useStore } from '../store';
+
 const PATHS = {
   wheat: (<><path d="M12 22V8" strokeLinecap="round" strokeWidth="2" /><path d="M12 8C12 4.7 9.6 2.6 6.2 2.6c0 3.4 2.4 5.4 5.8 5.4z" strokeLinejoin="round" strokeWidth="1.8" /><path d="M12 8c0-3.3 2.4-5.4 5.8-5.4 0 3.4-2.4 5.4-5.8 5.4z" strokeLinejoin="round" strokeWidth="1.8" /><path d="M12 13c-1.6 0-3.8-.6-5-2M12 16.5c1.6 0 3.8-.6 5-2" strokeLinecap="round" strokeWidth="1.8" /></>),
   rice: (<><path d="M6.5 10h11l-1.3 9.2a2 2 0 01-2 1.8H9.8a2 2 0 01-2-1.8L6.5 10z" strokeLinejoin="round" strokeWidth="2" /><path d="M6.5 10c0-2.2 2.4-3.5 5.5-3.5s5.5 1.3 5.5 3.5" strokeWidth="2" /><path d="M12 6.5V4M9.5 13.5h5" strokeLinecap="round" strokeWidth="1.8" /></>),
@@ -43,12 +45,23 @@ const STATUS_CONFIG = {
   Paid:                { pill: 'bg-[#E9EDDB] text-[#44532F] border-[#CFD8B8]', dot: 'bg-[#5C6E46]' },
 };
 
+const STATUS_HI = {
+  Queued: 'कतार में',
+  Weighed: 'तौला गया',
+  'Quality Checked': 'गुणवत्ता जांच पूर्ण',
+  Approved: 'स्वीकृत',
+  'Payment Initiated': 'भुगतान शुरू',
+  Paid: 'भुगतान पूर्ण',
+};
+
 export function StatusPill({ status, small }) {
+  const lang = useStore((s) => s.lang);
   const cfg = STATUS_CONFIG[status] || { pill: 'bg-stone-100 text-stone-600 border-stone-200', dot: 'bg-stone-400' };
+  const label = lang === 'hi' ? (STATUS_HI[status] || status) : status;
   return (
     <span className={'inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full font-semibold border whitespace-nowrap ' + cfg.pill + (small ? ' text-[10px]' : ' text-xs')}>
       <span className={'w-1.5 h-1.5 rounded-full ' + cfg.dot} />
-      {status}
+      {label}
     </span>
   );
 }
@@ -99,6 +112,23 @@ export function TextInput(props) {
   return (
     <input {...rest}
            className={'w-full bg-white border border-stone-300 p-3 rounded-md text-sm outline-none focus:ring-2 focus:ring-[#B4431F]/25 focus:border-[#B4431F] transition-all placeholder:text-stone-400' + (className ? ' ' + className : '')} />
+  );
+}
+
+export function LangToggle() {
+  const lang = useStore((s) => s.lang);
+  const setLang = useStore((s) => s.setLang);
+  return (
+    <div className="flex items-center rounded-full border border-white/15 bg-white/5 p-0.5 text-[10px] font-bold">
+      <button type="button" onClick={() => setLang('en')} aria-label="English"
+              className={'px-2 py-1 rounded-full transition ' + (lang === 'en' ? 'bg-[#B4431F] text-white' : 'text-stone-400 hover:text-stone-200')}>
+        EN
+      </button>
+      <button type="button" onClick={() => setLang('hi')} aria-label="Hindi"
+              className={'px-2 py-1 rounded-full transition ' + (lang === 'hi' ? 'bg-[#B4431F] text-white' : 'text-stone-400 hover:text-stone-200')}>
+        हिं
+      </button>
+    </div>
   );
 }
 

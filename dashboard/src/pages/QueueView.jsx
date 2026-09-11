@@ -37,7 +37,7 @@ function avatarColor(name = '') {
    STATUS PILL
 ───────────────────────────────────────────── */
 const STATUS_CONFIG = {
-  Queued:              { pill: 'bg-amber-50 text-amber-700 border-amber-200/70',   dot: 'bg-amber-500 animate-pulse' },
+  Queued:              { pill: 'bg-amber-50 text-amber-700 border-amber-200/70',   dot: 'bg-amber-500' },
   Weighed:             { pill: 'bg-blue-50 text-blue-700 border-blue-200/70',      dot: 'bg-blue-500' },
   'Quality Checked':   { pill: 'bg-purple-50 text-purple-700 border-purple-200/70', dot: 'bg-purple-500' },
   Approved:            { pill: 'bg-yellow-50 text-yellow-700 border-yellow-200/70', dot: 'bg-yellow-500' },
@@ -105,7 +105,7 @@ function Sidebar({ user, stats, volumePct, activeView, setView, showForm, setSho
         {/* Brand */}
         <div className="flex items-center gap-3 px-1.5 pt-1">
           <div className="h-9 w-9 rounded-xl flex items-center justify-center shadow-lg ring-1 ring-white/10"
-               style={{ background: 'linear-gradient(135deg,#2563EB,#34d399)', boxShadow: '0 4px 14px rgba(37,99,235,.25)' }}>
+               style={{ background: '#2563EB', boxShadow: '0 4px 14px rgba(37,99,235,.25)' }}>
             {Icon.leaf}
           </div>
           <div>
@@ -125,10 +125,10 @@ function Sidebar({ user, stats, volumePct, activeView, setView, showForm, setSho
             <div className="relative">
               <div className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-semibold
                              text-white tracking-wider border border-white/10 shadow-inner"
-                   style={{ background: 'linear-gradient(135deg,#3b82f6,#4f46e5)' }}>
+                   style={{ background: '#2563EB' }}>
                 {initials}
               </div>
-              <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-400 rounded-full ring-2 ring-[#0B1120] animate-pulse" />
+              <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-400 rounded-full ring-2 ring-[#0B1120]" />
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex items-center justify-between">
@@ -147,7 +147,7 @@ function Sidebar({ user, stats, volumePct, activeView, setView, showForm, setSho
              style={{ background: 'rgba(25,33,48,0.3)' }}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-blue-400 animate-ping" />
+              <span className="w-2 h-2 rounded-full bg-blue-400" />
               <span className="text-xs font-medium text-slate-300">Today's Intake</span>
             </div>
             <span className="text-[11px] font-medium text-slate-400">Live feed</span>
@@ -178,7 +178,7 @@ function Sidebar({ user, stats, volumePct, activeView, setView, showForm, setSho
               <span className="text-slate-200 font-semibold font-mono">{stats.totalKg.toLocaleString()} kg</span>
             </div>
             <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
-              <div className="h-1.5 rounded-full" style={{ width: `${volumePct}%`, background: 'linear-gradient(90deg,#3b82f6,#34d399)' }} />
+              <div className="h-1.5 rounded-full" style={{ width: `${volumePct}%`, background: '#2563EB' }} />
             </div>
           </div>
         </div>

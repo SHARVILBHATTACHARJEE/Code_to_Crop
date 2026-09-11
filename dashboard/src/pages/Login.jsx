@@ -34,7 +34,7 @@ export default function Login() {
 
         {/* Brand icon */}
         <div className="mx-auto mb-5 h-14 w-14 rounded-2xl flex items-center justify-center shadow-lg ring-1 ring-white/20"
-             style={{ background: 'linear-gradient(135deg,#2563EB,#34d399)', boxShadow: '0 8px 24px rgba(37,99,235,0.25)' }}>
+             style={{ background: '#2563EB', boxShadow: '0 8px 24px rgba(37,99,235,0.25)' }}>
           <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path d="M6 3v7a6 6 0 006 6 6 6 0 006-6V3M6 3h12M12 16v5m-4 0h8"
                   strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
@@ -89,7 +89,7 @@ export default function Login() {
             className="text-white font-bold py-3 rounded-xl mt-2 transition-all duration-150 shadow-lg
                        disabled:opacity-60 active:scale-[0.98]"
             style={{
-              background: loading ? '#93c5fd' : 'linear-gradient(135deg,#2563EB,#1d4ed8)',
+              background: loading ? '#93c5fd' : '#2563EB',
               boxShadow: loading ? 'none' : '0 4px 14px rgba(37,99,235,0.35)',
             }}
           >

@@ -20,7 +20,8 @@ const ProtectedRoute = ({ children }) => {
 function App() {
   return (
     <BrowserRouter>
-      <div className="max-w-md mx-auto min-h-screen bg-white shadow-xl overflow-hidden relative">
+      <div className="max-w-md mx-auto min-h-screen shadow-xl overflow-hidden relative border-x border-stone-200/60"
+           style={{ fontFamily: "'Inter', sans-serif", background: '#F6F1E8' }}>
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />

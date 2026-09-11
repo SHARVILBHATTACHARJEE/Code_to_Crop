@@ -75,3 +75,40 @@ export function useT() {
   const lang = useStore((s) => s.lang);
   return (key) => t(lang, key);
 }
+const CROP_HI = {
+  wheat: 'गेहूं', rice: 'चावल', paddy: 'धान', soybean: 'सोयाबीन', soyabean: 'सोयाबीन',
+  maize: 'मक्का', corn: 'मक्का', barley: 'जौ', mustard: 'सरसों', cotton: 'कपास',
+  sugarcane: 'गन्ना', gram: 'चना', chickpea: 'चना', lentil: 'मसूर', masoor: 'मसूर',
+  groundnut: 'मूंगफली', peanut: 'मूंगफली', sunflower: 'सूरजमुखी', bajra: 'बाजरा',
+  'pearl millet': 'बाजरा', jowar: 'ज्वार', sorghum: 'ज्वार', ragi: 'रागी',
+  'finger millet': 'रागी', sesamum: 'तिल', sesame: 'तिल', safflower: 'कुसुम',
+  linseed: 'अलसी', tur: 'अरहर', urad: 'उड़द', moong: 'मूंग',
+};
+
+const MANDI_WORD_HI = {
+  mandi: 'मंडी', samiti: 'समिति', kendra: 'केंद्र', center: 'केंद्र', centre: 'केंद्र',
+  bazaar: 'बाज़ार', bazar: 'बाज़ार', market: 'बाज़ार', anaj: 'अनाज', grain: 'अनाज',
+  upaj: 'उपज', krishi: 'कृषि', vipnan: 'विपणन', sahakari: 'सहकारी',
+};
+
+export function cropName(type, lang) {
+  if (lang !== 'hi') return type;
+  const key = String(type || '').trim().toLowerCase();
+  return CROP_HI[key] || type;
+}
+
+export function placeName(name, lang) {
+  if (lang !== 'hi') return name;
+  return String(name || '').split(/(\s+|,|·|-)/).map((w) => MANDI_WORD_HI[w.toLowerCase()] || w).join('');
+}
+
+export function formatDate(iso, lang) {
+  if (lang !== 'hi') return iso;
+  try {
+    const d = new Date(iso + 'T00:00:00');
+    if (Number.isNaN(d.getTime())) return iso;
+    return d.toLocaleDateString('hi-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+  } catch {
+    return iso;
+  }
+}

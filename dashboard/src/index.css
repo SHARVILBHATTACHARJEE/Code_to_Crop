@@ -19,3 +19,8 @@ body {
 
 
 ::selection { background: #B4431F; color: #FFF7ED; }
+/* Responsive guards: never crop content, mobile card actions go full-width */
+html, body { overflow-x: clip; }
+#root { min-width: 0; }
+.mobile-action > button, .mobile-action > span { width: 100%; justify-content: center; }
+.recharts-wrapper { max-width: 100%; }

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
 import { updateBookingStatus, createSchedule } from '../api/firestore';
+import IntakeView from './IntakeView';
 import { useStore } from '../store';
 
 
@@ -10,7 +11,7 @@ import { useStore } from '../store';
    CONSTANTS
 ───────────────────────────────────────────── */
 const STAGES = ['Queued', 'Weighed', 'Quality Checked', 'Approved', 'Payment Initiated', 'Paid'];
-const VIEWS  = ['bookings', 'weighbridge', 'qc', 'payment'];
+const VIEWS  = ['bookings', 'intake', 'weighbridge', 'qc', 'payment'];
 
 /* ─────────────────────────────────────────────
    HELPERS
@@ -84,6 +85,7 @@ const Icon = {
   ticket:  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 8a2 2 0 002-2h12a2 2 0 002 2v1.5a2.5 2.5 0 000 5V16a2 2 0 00-2 2H6a2 2 0 00-2-2v-1.5a2.5 2.5 0 000-5V8z" strokeLinejoin="round" strokeWidth="1.8"/><path d="M13.5 7.5v1.8M13.5 11.1v1.8M13.5 14.7v1.8" strokeLinecap="round" strokeWidth="1.8"/></svg>,
   timer:   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="13.5" r="7.5" strokeWidth="2"/><path d="M12 10v3.5l2.5 2.5M9.5 2.5h5" strokeLinecap="round" strokeWidth="1.8"/></svg>,
   transfer: <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 8.5h12.5L13.5 5.5M20 15.5H7.5l3 3" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg>,
+  chart:    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg>,
   calendar: <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16" rx="2" strokeWidth="2"/><path d="M8 2.5v4M16 2.5v4M3 9.5h18" strokeLinecap="round" strokeWidth="2"/></svg>,
 };
 
@@ -126,9 +128,38 @@ function cropIcon(type) {
   return Icon.wheat;
 }
 
-function Sidebar({ user, stats, bookings, volumePct, activeView, setView, setShowForm, logout, navigate, open, onClose }) {
+/* Distinct crop names for the Produce filter, always starting with All */
+function cropOptions(list) {
+  const names = Array.from(new Set((list || []).map(b => b.cropType).filter(Boolean)));
+  names.sort((a, b) => a.localeCompare(b));
+  return ['All', ...names];
+}
+
+/* Shared search + produce filter used by every bookings table */
+function matchCrop(item, search, crop) {
+  if (crop !== 'All' && (item.cropType || '') !== crop) return false;
+  return (item.cropType || '').toLowerCase().includes((search || '').trim().toLowerCase());
+}
+
+/* Small CSV download used by the Export action on every page */
+function downloadCSV(filename, headers, lines) {
+  const esc = v => `"${String(v == null ? '' : v).replace(/"/g, '""')}"`;
+  const csv = [headers.map(esc).join(','), ...lines.map(r => r.map(esc).join(','))].join('\r\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function Sidebar({ user, activeView, setView, setShowForm, logout, navigate, open, onClose }) {
   const navItems = [
     { id: 'bookings',    icon: Icon.ticket,   label: 'All Bookings' },
+    { id: 'intake',      icon: Icon.chart,    label: "Today's Intake" },
     { id: 'schedules',   icon: Icon.calendar, label: 'Procurement Schedules' },
     { id: 'weighbridge', icon: Icon.weighbridge,  label: 'Weighbridge Station' },
     { id: 'qc',          icon: Icon.flask,  label: 'QC Testing Lab' },
@@ -139,7 +170,7 @@ function Sidebar({ user, stats, bookings, volumePct, activeView, setView, setSho
 
   return (
     <aside
-      className={'fixed inset-y-0 left-0 z-40 w-72 max-w-[85vw] flex flex-col justify-between p-5 text-white shrink-0 select-none border-r border-stone-800/60 transition-transform duration-200 lg:static lg:z-auto lg:translate-x-0 ' + (open ? 'translate-x-0' : '-translate-x-full')}
+      className={'fixed inset-y-0 left-0 z-40 w-72 max-w-[85vw] flex flex-col justify-between p-5 text-white shrink-0 select-none overflow-y-auto border-r border-stone-800/60 transition-transform duration-200 lg:static lg:z-auto lg:translate-x-0 ' + (open ? 'translate-x-0' : '-translate-x-full')}
       style={{ background: '#221A13' }}
     >
       <div className="space-y-5">
@@ -188,41 +219,7 @@ function Sidebar({ user, stats, bookings, volumePct, activeView, setView, setSho
           </div>
         </div>
 
-        {/* Today's intake: live activity feed (shared across all views) */}
-        <div className="rounded-md p-4 space-y-3 border border-white/10"
-             style={{ background: 'rgba(255,244,230,0.04)' }}>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-[#D97B4A]" />
-              <span className="font-display text-sm font-semibold text-[#F5EDE0]">Today's Intake</span>
-            </div>
-            <span className="text-[11px] font-semibold text-[#D97B4A] font-mono">{stats.total} tokens</span>
-          </div>
-          <div className="space-y-0.5 max-h-52 overflow-y-auto pr-0.5">
-            {bookings.slice(0, 7).map(b => {
-              const dot = (STATUS_CONFIG[b.status] || {}).dot || 'bg-stone-500';
-              return (
-                <div key={b.id} className="flex items-center gap-2 px-1.5 py-1.5 rounded hover:bg-white/5">
-                  <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${dot}`} />
-                  <span className="text-[11px] font-mono font-medium text-stone-200">{b.tokenNumber}</span>
-                  <span className="text-[11px] text-stone-400 truncate">{b.cropType}</span>
-                </div>
-              );
-            })}
-            {bookings.length === 0 && (
-              <p className="text-[11px] text-stone-500 px-1.5 py-2">No tokens today yet.</p>
-            )}
-          </div>
-          <div className="pt-2.5 border-t border-white/10">
-            <div className="flex items-center justify-between text-[11px] text-stone-400 mb-1.5">
-              <span>Active {stats.active} · Settled {stats.paid}</span>
-              <span className="text-stone-200 font-semibold font-mono">{stats.totalKg.toLocaleString()} kg</span>
-            </div>
-            <div className="w-full bg-white/10 rounded-full h-1.5 overflow-hidden">
-              <div className="h-1.5 rounded-full" style={{ width: `${volumePct}%`, background: '#B4431F' }} />
-            </div>
-          </div>
-        </div>
+        {/* Intake now has its own full page — see "Today's Intake" in the nav above. */}
 
         {/* New Schedule */}
         <button
@@ -273,20 +270,20 @@ function Sidebar({ user, stats, bookings, volumePct, activeView, setView, setSho
 }
 
 /** Shared page header with search + filter + export */
-function PageHeader({ title, subtitle, badge, search, setSearch }) {
+function PageHeader({ title, subtitle, badge, search, setSearch, crops, crop, setCrop, onExport }) {
   return (
-    <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-stone-200">
+    <header className="flex flex-col gap-4 pb-5 sm:pb-6 border-b border-stone-200 xl:flex-row xl:items-center xl:justify-between">
       <div>
-        <div className="flex items-center gap-3">
-          <h1 className="font-display text-[26px] font-semibold tracking-tight text-stone-900">{title}</h1>
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded text-[11px] font-medium bg-[#F4E8CF] text-[#8A5A12] border border-[#E5CF9F]">
+        <div className="flex items-center gap-3 min-w-0 flex-wrap">
+          <h1 className="font-display text-xl sm:text-[26px] font-semibold tracking-tight text-stone-900 break-words min-w-0">{title}</h1>
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded text-[11px] font-medium bg-[#F4E8CF] text-[#8A5A12] border border-[#E5CF9F] shrink-0">
             {badge}
           </span>
         </div>
         {subtitle ? <p className="text-xs text-stone-500 mt-1">{subtitle}</p> : null}
       </div>
       <div className="flex items-center gap-3 flex-wrap">
-        <div className="relative w-full sm:w-72 lg:w-80">
+        <div className="relative w-full sm:w-72 xl:w-80 min-w-0">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-stone-400">{Icon.search}</div>
           <input
             type="text"
@@ -301,10 +298,25 @@ function PageHeader({ title, subtitle, badge, search, setSearch }) {
             <kbd className="text-[10px] font-mono text-stone-400 bg-stone-50 px-1.5 py-0.5 rounded border border-stone-200/80">⌘K</kbd>
           </div>
         </div>
-        <GhostBtn>
-          {Icon.filter}<span>Produce: All</span>
-        </GhostBtn>
-        <GhostBtn>
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">{Icon.filter}</div>
+          <select
+            value={crop || 'All'}
+            onChange={e => setCrop(e.target.value)}
+            aria-label="Filter by produce"
+            className="appearance-none block w-full sm:w-auto pl-8 pr-8 py-2 rounded-md bg-white border border-stone-300
+                       text-stone-600 font-medium text-xs shadow-sm hover:bg-stone-50 focus:outline-none
+                       focus:ring-2 focus:ring-[#B4431F]/25 transition-colors max-w-[190px] truncate"
+          >
+            {(crops && crops.length ? crops : ['All']).map(c => (
+              <option key={c} value={c}>{c === 'All' ? 'Produce: All' : c}</option>
+            ))}
+          </select>
+          <div className="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none text-stone-400">
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" /></svg>
+          </div>
+        </div>
+        <GhostBtn onClick={onExport}>
           {Icon.export}<span>Export</span>
         </GhostBtn>
       </div>
@@ -315,14 +327,14 @@ function PageHeader({ title, subtitle, badge, search, setSearch }) {
 /** Stat cards: hero metric leads, inline icons, zero-values muted */
 function MetricsBar({ cards }) {
   return (
-    <section className="grid grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr] gap-4 my-6">
+    <section className="grid grid-cols-1 min-[480px]:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4 my-5 sm:my-6">
       {cards.map(({ label, value, unit, tint, icon, hero }) => {
         const zero = String(value).charAt(0) === '0';
-        const valueCls = hero ? 'text-[28px] leading-8' : 'text-xl';
-        const valueLineCls = 'font-display tabular-nums mt-1.5 ' + valueCls + ' ' + (zero ? 'text-stone-300' : 'text-stone-900');
+        const valueCls = hero ? 'text-2xl sm:text-[28px] sm:leading-8' : 'text-lg sm:text-xl';
+        const valueLineCls = 'font-display tabular-nums mt-1.5 break-words ' + valueCls + ' ' + (zero ? 'text-stone-300' : 'text-stone-900');
         const unitCls = 'font-sans text-xs font-medium ml-1.5 ' + (zero ? 'text-stone-300' : 'text-stone-400');
         return (
-        <div key={label} className="bg-white rounded-md px-5 py-4 border border-stone-200/80"
+        <div key={label} className="bg-white rounded-md px-4 sm:px-5 py-4 border border-stone-200/80 min-w-0"
              style={{ boxShadow: '0 1px 2px rgba(60,45,25,0.05)' }}>
           <div>
             <p className="flex items-center gap-1.5 text-[11px] font-semibold text-stone-500 uppercase tracking-widest">
@@ -339,10 +351,71 @@ function MetricsBar({ cards }) {
   );
 }
 
-/** Table wrapper with pagination footer */
-function TableCard({ headers, rows, total, filtered, emptyTitle, emptySub }) {
+/** Shimmer placeholder shown while the first Firestore snapshot loads */
+function LoadingView() {
   return (
-    <div className="bg-white rounded-md border border-stone-200/60 overflow-hidden flex flex-col"
+    <div className="min-w-0 animate-pulse" aria-hidden="true">
+      <div className="pb-5 sm:pb-6 border-b border-stone-200">
+        <div className="h-7 w-56 max-w-full bg-stone-200 rounded" />
+        <div className="h-3 w-72 max-w-full bg-stone-200/70 rounded mt-2" />
+      </div>
+      <div className="grid grid-cols-1 min-[480px]:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4 my-5 sm:my-6">
+        {[0, 1, 2, 3].map(i => (
+          <div key={i} className="bg-white rounded-md px-4 sm:px-5 py-4 border border-stone-200/80">
+            <div className="h-3 w-24 bg-stone-200 rounded" />
+            <div className="h-7 w-32 max-w-full bg-stone-200 rounded mt-2" />
+          </div>
+        ))}
+      </div>
+      <div className="bg-white rounded-md border border-stone-200/60 overflow-hidden">
+        {[0, 1, 2, 3, 4].map(i => (
+          <div key={i} className="flex items-center gap-4 px-5 sm:px-6 py-4 border-b border-stone-100/70 last:border-0">
+            <div className="h-8 w-8 rounded-full bg-stone-200 shrink-0" />
+            <div className="flex-1 min-w-0 space-y-2">
+              <div className="h-3 w-2/5 bg-stone-200 rounded" />
+              <div className="h-3 w-3/5 bg-stone-200/70 rounded" />
+            </div>
+            <div className="h-6 w-20 bg-stone-200 rounded-full shrink-0 hidden sm:block" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/** Table wrapper with working client-side pagination */
+
+function TableCard({ headers, rows, total, filtered, emptyTitle, emptySub, pageSize }) {
+  const size = pageSize || 9;
+  const [page, setPage] = useState(0);
+  const [pageKey, setPageKey] = useState(null);
+  const listKey = rows.length + ':' + total;
+  if (listKey !== pageKey) { setPageKey(listKey); setPage(0); }
+  const pageCount = Math.max(1, Math.ceil(rows.length / size));
+  const safePage = Math.min(page, pageCount - 1);
+  const start = safePage * size;
+  const visible = rows.slice(start, start + size);
+  const from = rows.length === 0 ? 0 : start + 1;
+  const to = Math.min(start + size, rows.length);
+  const nums = [];
+  if (pageCount <= 7) {
+    for (let i = 0; i < pageCount; i++) nums.push(i);
+  } else {
+    const keep = new Set([0, pageCount - 1, safePage - 1, safePage, safePage + 1]);
+    let last = -2;
+    for (let i = 0; i < pageCount; i++) {
+      if (!keep.has(i)) continue;
+      if (i - last > 1) nums.push('…');
+      nums.push(i);
+      last = i;
+    }
+  }
+  const navCls = ok =>
+    ok
+      ? 'px-2.5 py-1.5 rounded-md border border-stone-200/70 text-stone-600 bg-white hover:bg-stone-50 font-medium transition-colors'
+      : 'px-2.5 py-1.5 rounded-md border border-stone-200/70 text-stone-400 bg-stone-50/50 cursor-not-allowed font-medium transition-colors';
+  return (
+    <div className="bg-white rounded-md border border-stone-200/60 overflow-hidden hidden md:flex flex-col"
          style={{ boxShadow: '0 4px 20px -2px rgba(0,0,0,0.03), 0 0 3px rgba(0,0,0,0.02)' }}>
       <div className="overflow-x-auto">
         <div style={{ minWidth: 1040 }}>
@@ -373,17 +446,26 @@ function TableCard({ headers, rows, total, filtered, emptyTitle, emptySub }) {
                   {emptySub || 'There are currently no crops matching this search. Make sure farmers have booked slots for today.'}
                 </p>
               </div>
-            ) : rows}
+            ) : visible}
           </div>
         </div>
       </div>
       {/* Pagination footer */}
-      <div className="px-6 py-4 bg-white border-t border-stone-100 flex items-center justify-between text-[11px] text-stone-500 select-none">
-        <div>Showing <span className="font-semibold text-stone-700">1</span> to <span className="font-semibold text-stone-700">{filtered}</span> of <span className="font-semibold text-stone-700">{total}</span> records</div>
-        <div className="flex items-center gap-1.5">
-          <button disabled className="px-2.5 py-1.5 rounded-md border border-stone-200/70 text-stone-400 bg-stone-50/50 cursor-not-allowed font-medium transition-colors">Previous</button>
-          <span className="px-3 font-semibold text-stone-700 bg-stone-50 border border-stone-200/50 rounded-md py-1.5">1</span>
-          <button disabled className="px-2.5 py-1.5 rounded-md border border-stone-200/70 text-stone-400 bg-stone-50/50 cursor-not-allowed font-medium transition-colors">Next</button>
+      <div className="px-4 sm:px-6 py-4 bg-white border-t border-stone-100 flex items-center justify-between gap-2 flex-wrap text-[11px] text-stone-500 select-none">
+        <div>Showing <span className="font-semibold text-stone-700">{from}</span> to <span className="font-semibold text-stone-700">{to}</span> of <span className="font-semibold text-stone-700">{filtered}</span> matching</div>
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <button disabled={safePage === 0} onClick={() => setPage(safePage - 1)} className={navCls(safePage !== 0)}>Previous</button>
+          {nums.map((n, i) => n === '…' ? (
+            <span key={'gap' + i} className="px-1 text-stone-400">…</span>
+          ) : (
+            <button key={n} onClick={() => setPage(n)}
+                    className={n === safePage
+                      ? 'px-3 py-1.5 rounded-md font-semibold text-white bg-[#B4431F] border border-[#B4431F] transition-colors'
+                      : 'px-3 py-1.5 rounded-md font-semibold text-stone-600 bg-white border border-stone-200/70 hover:bg-stone-50 transition-colors'}>
+              {n + 1}
+            </button>
+          ))}
+          <button disabled={safePage >= pageCount - 1} onClick={() => setPage(safePage + 1)} className={navCls(safePage < pageCount - 1)}>Next</button>
         </div>
       </div>
     </div>
@@ -462,9 +544,9 @@ function ViewBtn({ label }) {
    VIEW: ALL BOOKINGS
 ═══════════════════════════════════════════════════ */
 function AllBookings({ bookings, search, setSearch, handleStatusUpdate, stats }) {
-  const filtered = bookings.filter(b =>
-    (b.cropType || '').toLowerCase().includes(search.trim().toLowerCase())
-  );
+  const [crop, setCrop] = useState('All');
+  const crops = useMemo(() => cropOptions(bookings), [bookings]);
+  const filtered = bookings.filter(b => matchCrop(b, search, crop));
 
   const COLS = [
     { label: 'Date & Time',           span: '160px', align: 'left' },
@@ -521,6 +603,44 @@ function AllBookings({ bookings, search, setSearch, handleStatusUpdate, stats })
     );
   });
 
+  const bookCards = filtered.map(b => {
+    const curIdx = STAGES.indexOf(b.status);
+    const nextStage = curIdx < STAGES.length - 1 ? STAGES[curIdx + 1] : null;
+    return (
+      <div key={b.id} className="bg-white rounded-md border border-stone-200/70 p-4 space-y-3 min-w-0">
+        <div className="flex items-center justify-between gap-2">
+          <TokenBadge token={b.tokenNumber} />
+          <div className="text-right shrink-0">
+            <p className="font-medium text-stone-800 text-xs">{b.date || '—'}</p>
+            <p className="text-[11px] text-stone-400 font-mono">{b.slotTime || '—'}</p>
+          </div>
+        </div>
+        <FarmerCell name={b.farmerName} sub={b.farmerId} />
+        <div className="flex items-center justify-between gap-2 flex-wrap">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="w-7 h-7 rounded bg-[#F4E8CF] text-[#8A5A12] flex items-center justify-center shrink-0">{cropIcon(b.cropType)}</div>
+            <div className="min-w-0">
+              <span className="font-medium text-stone-700 block text-xs truncate">{b.cropType}</span>
+              <span className="font-bold text-stone-900 text-xs">{b.quantityKg} kg</span>
+            </div>
+          </div>
+          <StatusPill status={b.status} />
+        </div>
+        <div className="mobile-action">
+          {nextStage ? (
+            <PrimaryBtn onClick={() => handleStatusUpdate(b.id, nextStage)}>
+              <span className="inline-flex">{Icon.arrow}</span><span>{nextStage}</span>
+            </PrimaryBtn>
+          ) : (
+            <DoneChip />
+          )}
+        </div>
+      </div>
+    );
+  });
+  const handleExport = () => downloadCSV('all-bookings.csv',
+    ['Date', 'Slot', 'Token', 'Farmer', 'Farmer ID', 'Crop', 'Qty (kg)', 'Status'],
+    filtered.map(b => [b.date || '', b.slotTime || '', b.tokenNumber || '', b.farmerName || '', b.farmerId || '', b.cropType || '', b.quantityKg || '', b.status || '']));
   const metricCards = [
     { label: 'Total Volume',      value: stats.totalKg.toLocaleString(), unit: 'kg',      tint: 'text-[#B4431F]', icon: Icon.wheat, hero: true },
     { label: 'Pending Weighment', value: String(stats.pendingWeigh),     unit: 'vehicle', tint: 'text-[#3E6B8C]', icon: Icon.weighbridge },
@@ -530,10 +650,18 @@ function AllBookings({ bookings, search, setSearch, handleStatusUpdate, stats })
 
   return (
     <>
-      <PageHeader title="All Bookings"
-                  badge={`${bookings.length} total • Today`} search={search} setSearch={setSearch} />
+      <PageHeader title="All Bookings" subtitle="Latest date first — newest bookings on top"
+                  badge={`${filtered.length} of ${bookings.length} • All dates`} search={search} setSearch={setSearch} crops={crops} crop={crop} setCrop={setCrop} onExport={handleExport} />
       <MetricsBar cards={metricCards} />
       <TableCard headers={COLS} rows={rows} total={bookings.length} filtered={filtered.length} />
+      <div className="md:hidden space-y-3">
+        {bookCards.length === 0 ? (
+          <div className="bg-white rounded-md border border-stone-200/70 px-6 py-10 text-center">
+            <p className="text-sm font-medium text-stone-600">No bookings found</p>
+            <p className="text-[11px] mt-1 text-stone-400">There are currently no crops matching this search. Make sure farmers have booked slots for today.</p>
+          </div>
+        ) : bookCards}
+      </div>
     </>
   );
 }
@@ -542,9 +670,9 @@ function AllBookings({ bookings, search, setSearch, handleStatusUpdate, stats })
    VIEW: WEIGHBRIDGE STATION
 ═══════════════════════════════════════════════════ */
 function WeighbridgeStation({ bookings, search, setSearch, handleStatusUpdate, stats }) {
-  const filtered = bookings.filter(b =>
-    (b.cropType || '').toLowerCase().includes(search.trim().toLowerCase())
-  );
+  const [crop, setCrop] = useState('All');
+  const crops = useMemo(() => cropOptions(bookings), [bookings]);
+  const filtered = bookings.filter(b => matchCrop(b, search, crop));
 
   const COLS = [
     { label: 'Token',           span: '120px', align: 'left'   },
@@ -626,6 +754,58 @@ function WeighbridgeStation({ bookings, search, setSearch, handleStatusUpdate, s
     );
   });
 
+  const weighCards = filtered.map(b => {
+    const qty = Number(b.quantityKg || 0);
+    const weighed = b.status !== 'Queued';
+    return (
+      <div key={b.id} className="bg-white rounded-md border border-stone-200/70 p-4 space-y-3 min-w-0">
+        <div className="flex items-center justify-between gap-2">
+          <TokenBadge token={b.tokenNumber} />
+          <StatusPill status={weighed ? 'Weighed' : 'Queued'} small />
+        </div>
+        <FarmerCell name={b.farmerName} sub={b.farmerId} />
+        <div className="flex items-center justify-between gap-2 flex-wrap">
+          <CropCell type={b.cropType} />
+          <span className="font-bold text-stone-900 text-sm font-mono">{qty} kg net</span>
+        </div>
+        <div className="grid grid-cols-2 gap-2 text-center">
+          <div className="rounded bg-stone-50 border border-stone-100 px-2 py-1.5 min-w-0">
+            <p className="text-[10px] uppercase tracking-wider text-stone-400 font-semibold">Loaded</p>
+            <p className="font-semibold text-stone-800 text-sm font-mono">{Math.round(qty * 4.84).toLocaleString()} kg</p>
+          </div>
+          <div className="rounded bg-stone-50 border border-stone-100 px-2 py-1.5 min-w-0">
+            <p className="text-[10px] uppercase tracking-wider text-stone-400 font-semibold">Unloaded</p>
+            <p className="font-semibold text-stone-800 text-sm font-mono">{Math.round(qty * 3.84).toLocaleString()} kg</p>
+          </div>
+        </div>
+        {weighed ? (
+          <div className="flex items-center gap-2 flex-wrap">
+            <ImgChip name={`SCALE_${b.tokenNumber?.slice(-2) || '00'}.JPG`} />
+            <ViewBtn />
+          </div>
+        ) : (
+          <UploadBtn label="UPLOAD READOUT" />
+        )}
+        <div className="mobile-action">
+          {b.status === 'Queued' ? (
+            <PrimaryBtn onClick={() => handleStatusUpdate(b.id, 'Weighed')}>
+              <span>SAVE &amp; NEXT</span><span className="inline-flex">{Icon.arrow}</span>
+            </PrimaryBtn>
+          ) : (
+            <PrimaryBtn>
+              {Icon.print}<span>PRINT TICKET</span>
+            </PrimaryBtn>
+          )}
+        </div>
+      </div>
+    );
+  });
+  const handleExport = () => downloadCSV('weighbridge.csv',
+    ['Token', 'Farmer', 'Farmer ID', 'Crop', 'Loaded (kg)', 'Unloaded (kg)', 'Net (kg)', 'Status'],
+    filtered.map(b => {
+      const qty = Number(b.quantityKg || 0);
+      return [b.tokenNumber || '', b.farmerName || '', b.farmerId || '', b.cropType || '', Math.round(qty * 4.84), Math.round(qty * 3.84), qty, b.status || ''];
+    }));
   const metricCards = [
     { label: "Today's Weighed Vol.", value: stats.totalKg.toLocaleString(), unit: 'kg',      tint: 'text-[#B4431F]', icon: Icon.weighbridge, hero: true },
     { label: 'Vehicles in Queue',    value: String(stats.pendingWeigh),     unit: 'pending', tint: 'text-[#3E6B8C]', icon: Icon.truck },
@@ -636,9 +816,17 @@ function WeighbridgeStation({ bookings, search, setSearch, handleStatusUpdate, s
   return (
     <>
       <PageHeader title="Weighbridge Station" subtitle="Real-time weighbridge queue and certificate management"
-                  badge={`${bookings.length} total • Active Shift`} search={search} setSearch={setSearch} />
+                  badge={`${filtered.length} of ${bookings.length} • Active Shift`} search={search} setSearch={setSearch} crops={crops} crop={crop} setCrop={setCrop} onExport={handleExport} />
       <MetricsBar cards={metricCards} />
       <TableCard headers={COLS} rows={rows} total={bookings.length} filtered={filtered.length} />
+      <div className="md:hidden space-y-3">
+        {weighCards.length === 0 ? (
+          <div className="bg-white rounded-md border border-stone-200/70 px-6 py-10 text-center">
+            <p className="text-sm font-medium text-stone-600">No vehicles in queue</p>
+            <p className="text-[11px] mt-1 text-stone-400">There are currently no crops matching this search.</p>
+          </div>
+        ) : weighCards}
+      </div>
     </>
   );
 }
@@ -647,9 +835,9 @@ function WeighbridgeStation({ bookings, search, setSearch, handleStatusUpdate, s
    VIEW: QC TESTING LAB
 ═══════════════════════════════════════════════════ */
 function QCLab({ bookings, search, setSearch, handleStatusUpdate, stats }) {
-  const filtered = bookings.filter(b =>
-    (b.cropType || '').toLowerCase().includes(search.trim().toLowerCase())
-  );
+  const [crop, setCrop] = useState('All');
+  const crops = useMemo(() => cropOptions(bookings), [bookings]);
+  const filtered = bookings.filter(b => matchCrop(b, search, crop));
 
   const COLS = [
     { label: 'Token',          span: '120px', align: 'left'   },
@@ -749,6 +937,73 @@ function QCLab({ bookings, search, setSearch, handleStatusUpdate, stats }) {
     );
   });
 
+  const qcCards = filtered.map(b => {
+    const qcDone = ['Quality Checked', 'Approved', 'Payment Initiated', 'Paid'].includes(b.status);
+    const active = b.status === 'Weighed';
+    return (
+      <div key={b.id} className="bg-white rounded-md border border-stone-200/70 p-4 space-y-3 min-w-0">
+        <div className="flex items-center justify-between gap-2">
+          <TokenBadge token={b.tokenNumber} />
+          <StatusPill status={active ? 'Quality Checked' : qcDone ? 'Quality Checked' : b.status} small />
+        </div>
+        <FarmerCell name={b.farmerName} sub={b.farmerId} />
+        <CropCell type={b.cropType} />
+        <div className="grid grid-cols-3 gap-2 text-center">
+          <div className="rounded bg-stone-50 border border-stone-100 px-2 py-1.5 min-w-0">
+            <p className="text-[10px] uppercase tracking-wider text-stone-400 font-semibold">Moist.</p>
+            {active ? (
+              <input defaultValue="12.4" className="w-full px-1 py-1 text-sm border border-stone-200 rounded font-mono text-center font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-[#B4431F]/25" />
+            ) : (
+              <p className="font-semibold text-stone-800 text-sm font-mono">11.8%</p>
+            )}
+          </div>
+          <div className="rounded bg-stone-50 border border-stone-100 px-2 py-1.5 min-w-0">
+            <p className="text-[10px] uppercase tracking-wider text-stone-400 font-semibold">Foreign</p>
+            {active ? (
+              <input defaultValue="0.8" className="w-full px-1 py-1 text-sm border border-stone-200 rounded font-mono text-center font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-[#B4431F]/25" />
+            ) : (
+              <p className="font-semibold text-stone-800 text-sm font-mono">0.4%</p>
+            )}
+          </div>
+          <div className="rounded bg-stone-50 border border-stone-100 px-2 py-1.5 min-w-0">
+            <p className="text-[10px] uppercase tracking-wider text-stone-400 font-semibold">Grade</p>
+            {active ? (
+              <select className="w-full text-xs px-1 py-1 border border-stone-200 rounded bg-white font-semibold text-stone-800 focus:outline-none focus:ring-2 focus:ring-[#B4431F]/25">
+                <option>Grade A</option><option>Grade B</option><option>Grade C</option>
+              </select>
+            ) : (
+              <p className="text-[11px] font-semibold text-[#44532F]">Grade A</p>
+            )}
+          </div>
+        </div>
+        <div className="flex items-center gap-2 flex-wrap">
+          {qcDone ? (
+            <><ImgChip name={`QC_CERT_01.JPG`} /><ViewBtn /></>
+          ) : active ? (
+            <UploadBtn label="UPLOAD QC REPORT" />
+          ) : (
+            <span className="text-xs text-stone-400">Awaiting weighment</span>
+          )}
+        </div>
+        <div className="mobile-action">
+          {active ? (
+            <PrimaryBtn onClick={() => handleStatusUpdate(b.id, 'Quality Checked')}>
+              <span>SAVE &amp; NEXT</span><span className="inline-flex">{Icon.arrow}</span>
+            </PrimaryBtn>
+          ) : qcDone ? (
+            <PrimaryBtn>
+              {Icon.print}<span>PRINT LAB REPORT</span>
+            </PrimaryBtn>
+          ) : (
+            <span className="text-xs text-stone-400 text-center">Pending weigh</span>
+          )}
+        </div>
+      </div>
+    );
+  });
+  const handleExport = () => downloadCSV('qc-lab.csv',
+    ['Token', 'Farmer', 'Farmer ID', 'Crop', 'Status'],
+    filtered.map(b => [b.tokenNumber || '', b.farmerName || '', b.farmerId || '', b.cropType || '', b.status || '']));
   const metricCards = [
     { label: 'Samples Received',    value: String(bookings.length), unit: 'lots',     tint: 'text-[#8A5A12]', icon: Icon.wheat },
     { label: 'Tests Completed',     value: String(stats.paid + stats.pendingQC),       unit: 'verified', tint: 'text-[#B4431F]', icon: Icon.flask, hero: true },
@@ -759,9 +1014,17 @@ function QCLab({ bookings, search, setSearch, handleStatusUpdate, stats }) {
   return (
     <>
       <PageHeader title="QC Testing Lab" subtitle="Real-time grain analysis, moisture grading and quality certification"
-                  badge={`${bookings.length} samples • Active Shift`} search={search} setSearch={setSearch} />
+                  badge={`${filtered.length} of ${bookings.length} samples`} search={search} setSearch={setSearch} crops={crops} crop={crop} setCrop={setCrop} onExport={handleExport} />
       <MetricsBar cards={metricCards} />
       <TableCard headers={COLS} rows={rows} total={bookings.length} filtered={filtered.length} />
+      <div className="md:hidden space-y-3">
+        {qcCards.length === 0 ? (
+          <div className="bg-white rounded-md border border-stone-200/70 px-6 py-10 text-center">
+            <p className="text-sm font-medium text-stone-600">No samples found</p>
+            <p className="text-[11px] mt-1 text-stone-400">There are currently no crops matching this search.</p>
+          </div>
+        ) : qcCards}
+      </div>
     </>
   );
 }
@@ -770,9 +1033,9 @@ function QCLab({ bookings, search, setSearch, handleStatusUpdate, stats }) {
    VIEW: PAYMENT SETTLEMENT
 ═══════════════════════════════════════════════════ */
 function PaymentSettlement({ bookings, search, setSearch, handleStatusUpdate, stats }) {
-  const filtered = bookings.filter(b =>
-    (b.cropType || '').toLowerCase().includes(search.trim().toLowerCase())
-  );
+  const [crop, setCrop] = useState('All');
+  const crops = useMemo(() => cropOptions(bookings), [bookings]);
+  const filtered = bookings.filter(b => matchCrop(b, search, crop));
 
   // No Payment Cert column — removed per user request
   const COLS = [
@@ -874,6 +1137,51 @@ function PaymentSettlement({ bookings, search, setSearch, handleStatusUpdate, st
     .filter(b => b.status === 'Paid')
     .reduce((s, b) => s + Number(b.quantityKg || 0) * (MSP_RATES[b.cropType] || 25), 0);
 
+  const payCards = filtered.map(b => {
+    const paid = b.status === 'Paid';
+    const ready = b.status === 'Approved';
+    const rate = MSP_RATES[b.cropType] || 25;
+    const qty = Number(b.quantityKg || 0);
+    const total = Math.round(qty * rate);
+    const bankAbbr = ['HDFC', 'SBI', 'PNB', 'BOB', 'UCO'][Math.abs(b.farmerId?.charCodeAt(0) || 0) % 5];
+    return (
+      <div key={b.id} className="bg-white rounded-md border border-stone-200/70 p-4 space-y-3 min-w-0">
+        <div className="flex items-center justify-between gap-2">
+          <TokenBadge token={b.tokenNumber} />
+          <StatusPill status={paid ? 'Paid' : ready ? 'Approved' : b.status} small />
+        </div>
+        <FarmerCell name={b.farmerName} sub={`${bankAbbr} •••• ${String(b.farmerId || '0000').slice(-4)}`} />
+        <div className="flex items-center justify-between gap-2 text-xs flex-wrap">
+          <CropCell type={b.cropType} />
+          <span className="font-semibold text-stone-700 font-mono">{qty} kg x ₹{rate.toFixed(2)}</span>
+        </div>
+        <div className="flex items-center justify-between gap-2 rounded-md bg-stone-50 border border-stone-100 px-3 py-2">
+          <span className="text-[11px] font-semibold text-stone-500 uppercase tracking-wider">Payable</span>
+          <span className="font-bold text-stone-900 font-mono">₹{total.toLocaleString()}</span>
+        </div>
+        <div className="mobile-action">
+          {ready ? (
+            <PrimaryBtn onClick={() => handleStatusUpdate(b.id, 'Payment Initiated')}>
+              <span className="inline-flex">{Icon.bolt}</span><span>TRIGGER DBT</span>
+            </PrimaryBtn>
+          ) : paid ? (
+            <PrimaryBtn>
+              {Icon.receipt}<span>RECEIPT</span>
+            </PrimaryBtn>
+          ) : (
+            <span className="text-xs text-stone-400 text-center">Awaiting approval</span>
+          )}
+        </div>
+      </div>
+    );
+  });
+  const handleExport = () => downloadCSV('payments.csv',
+    ['Token', 'Farmer', 'Crop', 'Qty (kg)', 'Rate (Rs/kg)', 'Total (Rs)', 'Status'],
+    filtered.map(b => {
+      const rate = MSP_RATES[b.cropType] || 25;
+      const qty = Number(b.quantityKg || 0);
+      return [b.tokenNumber || '', b.farmerName || '', b.cropType || '', qty, rate.toFixed(2), Math.round(qty * rate), b.status || ''];
+    }));
   const metricCards = [
     { label: 'Total Settled',       value: `₹${Math.round(totalPaid).toLocaleString()}`, unit: '',       tint: 'text-[#B4431F]', icon: Icon.rupee, hero: true },
     { label: 'Payments in Process', value: String(stats.pendingWeigh), unit: 'active',   tint: 'text-[#8A5A12]', icon: Icon.transfer },
@@ -884,9 +1192,17 @@ function PaymentSettlement({ bookings, search, setSearch, handleStatusUpdate, st
   return (
     <>
       <PageHeader title="Payment Settlement" subtitle="Direct Benefit Transfer (DBT) disbursement and invoice ledger"
-                  badge={`${bookings.length} transactions • Today`} search={search} setSearch={setSearch} />
+                  badge={`${filtered.length} of ${bookings.length} • All dates`} search={search} setSearch={setSearch} crops={crops} crop={crop} setCrop={setCrop} onExport={handleExport} />
       <MetricsBar cards={metricCards} />
       <TableCard headers={COLS} rows={rows} total={bookings.length} filtered={filtered.length} />
+      <div className="md:hidden space-y-3">
+        {payCards.length === 0 ? (
+          <div className="bg-white rounded-md border border-stone-200/70 px-6 py-10 text-center">
+            <p className="text-sm font-medium text-stone-600">No transactions found</p>
+            <p className="text-[11px] mt-1 text-stone-400">There are currently no crops matching this search.</p>
+          </div>
+        ) : payCards}
+      </div>
     </>
   );
 }
@@ -895,9 +1211,9 @@ function PaymentSettlement({ bookings, search, setSearch, handleStatusUpdate, st
    VIEW: PROCUREMENT SCHEDULES
 ═══════════════════════════════════════════════════ */
 function SchedulesView({ schedules, search, setSearch }) {
-  const filtered = schedules.filter(s =>
-    (s.cropType || '').toLowerCase().includes(search.trim().toLowerCase())
-  );
+  const [crop, setCrop] = useState('All');
+  const crops = useMemo(() => cropOptions(schedules), [schedules]);
+  const filtered = schedules.filter(s => matchCrop(s, search, crop));
 
   const today = new Date().toISOString().split('T')[0];
 
@@ -977,6 +1293,44 @@ function SchedulesView({ schedules, search, setSearch }) {
   const openSlots   = Math.max(0, totalSlots - bookedSlots);
   const fillRate    = totalSlots > 0 ? Math.round((bookedSlots / totalSlots) * 100) : 0;
 
+  const schedCards = filtered.map(s => {
+    const total = Number(s.totalSlots || 0);
+    const booked = Number(s.bookedSlots || 0);
+    const pct = total > 0 ? Math.min(100, Math.round((booked / total) * 100)) : 0;
+    const past = (s.date || '') < today;
+    const full = !past && total > 0 && booked >= total;
+    const st = past ? 'Completed' : full ? 'House Full' : 'Open';
+    const pillCls = st === 'Open'
+      ? 'bg-[#E9EDDB] text-[#44532F] border-[#CFD8B8]'
+      : past ? 'bg-stone-100 text-stone-500 border-stone-200' : 'bg-[#F7E3D3] text-[#933515] border-[#E8BFA4]';
+    return (
+      <div key={s.id} className="bg-white rounded-md border border-stone-200/70 p-4 space-y-3 min-w-0">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="w-7 h-7 rounded bg-[#F4E8CF] text-[#8A5A12] flex items-center justify-center shrink-0">{cropIcon(s.cropType)}</div>
+            <div className="min-w-0">
+              <span className="font-medium text-stone-700 block text-xs truncate">{s.cropType}</span>
+              <span className="font-bold text-stone-900 text-xs">MSP ₹{s.mspRate}/Qtl</span>
+            </div>
+          </div>
+          <span className={'inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full font-semibold border text-xs whitespace-nowrap shrink-0 ' + pillCls}>{st}</span>
+        </div>
+        <div className="flex items-center justify-between gap-2 text-xs text-stone-500 flex-wrap">
+          <span className="font-medium text-stone-800">{s.date || '—'}</span>
+          <span className="font-mono">{s.startTime || '—'} – {s.endTime || '—'}</span>
+        </div>
+        <div>
+          <div className="w-full bg-stone-100 rounded-full h-1.5 overflow-hidden">
+            <div className="h-1.5 rounded-full" style={{ width: `${pct}%`, background: full ? '#B4431F' : '#5C6E46' }} />
+          </div>
+          <span className="text-[11px] text-stone-500 font-mono">{booked}/{total} slots</span>
+        </div>
+      </div>
+    );
+  });
+  const handleExport = () => downloadCSV('schedules.csv',
+    ['Crop', 'Date', 'Start', 'End', 'MSP (Rs/Qtl)', 'Total slots', 'Booked slots'],
+    filtered.map(s => [s.cropType || '', s.date || '', s.startTime || '', s.endTime || '', s.mspRate || '', s.totalSlots || '', s.bookedSlots || '']));
   const metricCards = [
     { label: 'Open Slots',      value: String(openSlots),        unit: 'slots',  tint: 'text-[#B4431F]', icon: Icon.calendar, hero: true },
     { label: 'Total Schedules', value: String(schedules.length), unit: 'drives', tint: 'text-[#8A5A12]', icon: Icon.wheat },
@@ -987,11 +1341,19 @@ function SchedulesView({ schedules, search, setSearch }) {
   return (
     <>
       <PageHeader title="Procurement Schedules" subtitle="Published drives, slot capacity and booking fill"
-                  badge={`${schedules.length} total · ${openSlots} open`} search={search} setSearch={setSearch} />
+                  badge={`${filtered.length} of ${schedules.length} · ${openSlots} open`} search={search} setSearch={setSearch} crops={crops} crop={crop} setCrop={setCrop} onExport={handleExport} />
       <MetricsBar cards={metricCards} />
       <TableCard headers={COLS} rows={rows} total={schedules.length} filtered={filtered.length}
                  emptyTitle="No schedules found"
                  emptySub="Publish a procurement schedule to open booking slots for farmers." />
+      <div className="md:hidden space-y-3">
+        {schedCards.length === 0 ? (
+          <div className="bg-white rounded-md border border-stone-200/70 px-6 py-10 text-center">
+            <p className="text-sm font-medium text-stone-600">No schedules found</p>
+            <p className="text-[11px] mt-1 text-stone-400">Publish a procurement schedule to open booking slots for farmers.</p>
+          </div>
+        ) : schedCards}
+      </div>
     </>
   );
 }
@@ -1005,6 +1367,7 @@ export default function QueueView() {
   const navigate = useNavigate();
 
   const [bookings,    setBookings]    = useState([]);
+  const [loaded,      setLoaded]      = useState(false);
   const [schedules,   setSchedules]   = useState([]);
   const [result,      setResult]      = useState(null);
   const [search,      setSearch]      = useState('');
@@ -1025,10 +1388,11 @@ export default function QueueView() {
           .map(d => ({ id: d.id, ...d.data() }))
           .sort((a, b) =>
             a.date === b.date
-              ? (a.slotTime || '').localeCompare(b.slotTime || '')
-              : (a.date  || '').localeCompare(b.date  || '')
+              ? (b.slotTime || '').localeCompare(a.slotTime || '')
+              : (b.date  || '').localeCompare(a.date  || '')
           );
         setBookings(data);
+        setLoaded(true);
       },
       err => console.error('Firestore error:', err)
     );
@@ -1044,8 +1408,8 @@ export default function QueueView() {
           .map(d => ({ id: d.id, ...d.data() }))
           .sort((a, b) =>
             a.date === b.date
-              ? (a.startTime || '').localeCompare(b.startTime || '')
-              : (a.date  || '').localeCompare(b.date  || '')
+              ? (b.startTime || '').localeCompare(a.startTime || '')
+              : (b.date  || '').localeCompare(a.date  || '')
           );
         setSchedules(data);
       },
@@ -1085,7 +1449,6 @@ export default function QueueView() {
     paidKg:      bookings.filter(b => b.status === 'Paid').reduce((s, b) => s + Number(b.quantityKg || 0), 0),
   }), [bookings]);
 
-  const volumePct = stats.totalKg > 0 ? Math.round((stats.paidKg / stats.totalKg) * 100) : 0;
 
   /* Reset search when switching views */
   const setView = v => { setActiveView(v); setSearch(''); setNavOpen(false); };
@@ -1097,7 +1460,7 @@ export default function QueueView() {
 
       {/* ── SIDEBAR ── */}
       <Sidebar
-        user={user} stats={stats} bookings={bookings} volumePct={volumePct}
+        user={user}
         activeView={activeView} setView={setView}
         setShowForm={setShowForm}
         logout={logout} navigate={navigate}
@@ -1117,12 +1480,17 @@ export default function QueueView() {
           <span className="font-display font-semibold tracking-tight truncate">FarmConnect</span>
           <span className="ml-auto text-[11px] font-mono text-stone-400 whitespace-nowrap">{stats.total} tokens</span>
         </div>
-        <div className="p-4 sm:p-6 lg:p-8">
+        <div className="w-full min-w-0 max-w-[1440px] mx-auto p-4 sm:p-6 lg:p-8 overflow-x-clip">
+        {!loaded ? <LoadingView /> : (
+        <>
         {activeView === 'bookings'    && <AllBookings       {...sharedProps} />}
+        {activeView === 'intake'      && <IntakeView        {...sharedProps} />}
         {activeView === 'schedules'   && <SchedulesView     {...sharedProps} />}
         {activeView === 'weighbridge' && <WeighbridgeStation {...sharedProps} />}
         {activeView === 'qc'          && <QCLab             {...sharedProps} />}
         {activeView === 'payment'     && <PaymentSettlement  {...sharedProps} />}
+        </>
+        )}
         </div>
       </main>
 

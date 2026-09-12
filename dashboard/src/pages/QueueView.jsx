@@ -181,7 +181,7 @@ function Sidebar({ user, activeView, setView, setShowForm, logout, navigate, ope
             {Icon.leaf}
           </div>
           <div>
-            <div className="flex items-center gap-1.5">
+            <div className="flex min-w-0 items-center gap-1.5 overflow-hidden">
               <span className="font-display font-semibold tracking-tight text-lg text-[#F5EDE0]">FarmConnect</span>
               <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold
                                bg-[#5C6E46]/15 text-[#A9BC8A] border border-[#5C6E46]/40">HQ</span>
@@ -245,7 +245,7 @@ function Sidebar({ user, activeView, setView, setShowForm, logout, navigate, ope
                     ? 'bg-white/5 text-white font-medium border border-white/5'
                     : 'text-stone-400 hover:text-stone-200 hover:bg-white/5 font-normal'}`}>
                 <span className={isActive ? 'text-[#DE9A63]' : ''}>{icon}</span>
-                <span>{label}</span>
+                <span className="truncate">{label}</span>
               </button>
             );
           })}
@@ -385,6 +385,22 @@ function LoadingView() {
 
 /** Table wrapper with working client-side pagination */
 
+/* Table min-width from column spans: flex columns keep a real minimum so tracks never collapse and overlap. The scroll container handles narrower viewports. */
+function tableMinWidth(headers) {
+  let fixed = 0;
+  let flexMin = 0;
+  (headers || []).forEach(function (h) {
+    const span = h.span || "";
+    let m = /minmax\(\s*(\d+)px/i.exec(span);
+    if (m) { flexMin += parseInt(m[1], 10); return; }
+    m = /(\d+)px/.exec(span);
+    if (m) fixed += parseInt(m[1], 10);
+    else fixed += 120;
+  });
+  const gaps = Math.max(0, (headers || []).length - 1) * 16;
+  return fixed + flexMin + gaps + 48;
+}
+
 function TableCard({ headers, rows, total, filtered, emptyTitle, emptySub, pageSize }) {
   const size = pageSize || 9;
   const [page, setPage] = useState(0);
@@ -418,7 +434,7 @@ function TableCard({ headers, rows, total, filtered, emptyTitle, emptySub, pageS
     <div className="bg-white rounded-md border border-stone-200/60 overflow-hidden hidden md:flex flex-col"
          style={{ boxShadow: '0 4px 20px -2px rgba(0,0,0,0.03), 0 0 3px rgba(0,0,0,0.02)' }}>
       <div className="overflow-x-auto">
-        <div style={{ minWidth: 1040 }}>
+        <div style={{ minWidth: tableMinWidth(headers) }}>
           {/* Header — gap-4 MUST match every data row exactly */}
           <div className="grid items-center bg-white px-6 py-3.5 border-b border-stone-100
                           text-[10px] font-bold tracking-widest text-stone-400 uppercase select-none gap-4"
@@ -430,7 +446,7 @@ function TableCard({ headers, rows, total, filtered, emptyTitle, emptySub, pageS
                      h.align === 'center' ? 'flex items-center justify-center' :
                                             'flex items-center'
                    }>
-                {h.label}
+                <span className="truncate">{h.label}</span>
               </div>
             ))}
           </div>
@@ -476,13 +492,13 @@ function TableCard({ headers, rows, total, filtered, emptyTitle, emptySub, pageS
 function FarmerCell({ name, sub }) {
   const avCls = avatarColor(name || '');
   return (
-    <div className="flex items-center gap-2.5 min-w-0">
+    <div className="flex min-w-0 items-center gap-2.5 overflow-hidden">
       <div className={`w-8 h-8 rounded-full border flex items-center justify-center shrink-0 font-semibold text-xs ${avCls}`}>
         {getInitials(name)}
       </div>
       <div className="min-w-0">
-        <p className="font-semibold text-stone-900 truncate">{name}</p>
-        <p className="text-stone-400 text-[11px] font-mono">{sub}</p>
+        <p className="truncate text-sm font-semibold leading-tight text-stone-900">{name}</p>
+        <p className="truncate font-mono text-[11px] text-stone-400">{sub}</p>
       </div>
     </div>
   );
@@ -491,7 +507,7 @@ function FarmerCell({ name, sub }) {
 /* Token badge */
 function TokenBadge({ token }) {
   return (
-    <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-semibold font-mono tracking-wide
+    <span className="inline-flex items-center px-2 py-1 max-w-full overflow-hidden text-ellipsis whitespace-nowrap rounded-md text-xs font-semibold font-mono tracking-wide
                      bg-[#F4E8CF] text-[#8A5A12] border border-[#E5CF9F]">
       {token}
     </span>
@@ -501,9 +517,9 @@ function TokenBadge({ token }) {
 /* Crop cell */
 function CropCell({ type }) {
   return (
-    <div className="flex items-center gap-1.5">
+    <div className="flex min-w-0 items-center gap-1.5 overflow-hidden">
       <div className="w-6 h-6 rounded bg-[#F4E8CF] text-[#8A5A12] flex items-center justify-center shrink-0">{cropIcon(type)}</div>
-      <span className="font-medium text-stone-700 text-xs">{type}</span>
+      <span className="truncate text-xs font-medium text-stone-700">{type}</span>
     </div>
   );
 }
@@ -511,11 +527,11 @@ function CropCell({ type }) {
 /* Upload / image placeholder button */
 function UploadBtn({ label }) {
   return (
-    <button className="w-full inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-md
+    <button className="w-full inline-flex min-w-0 items-center justify-center gap-1.5 whitespace-nowrap px-2.5 py-1.5 rounded-md
                        border border-dashed border-stone-300 bg-[#FBF8F1] hover:bg-[#F4EDE0]
                        text-stone-600 font-medium text-[11px] transition-colors">
-      <span className="text-stone-400">{Icon.camera}</span>
-      <span>{label}</span>
+      <span className="shrink-0 text-stone-400">{Icon.camera}</span>
+      <span className="truncate">{label}</span>
     </button>
   );
 }
@@ -524,18 +540,18 @@ function UploadBtn({ label }) {
 function ImgChip({ name, color = 'stone' }) {
   const bg = color === 'plum' ? 'bg-[#ECE7EE] border-[#D3C8DB] text-[#5D4A6B]' : 'bg-stone-100 border-stone-200 text-stone-600';
   return (
-    <div className={`flex items-center gap-1.5 px-2 py-1 rounded-md border text-xs font-mono ${bg}`}>
-      {Icon.eye}
-      <span className={`text-[11px] font-medium font-mono ${color === 'plum' ? 'text-[#5D4A6B]' : 'text-stone-700'}`}>{name}</span>
+    <div className={`flex min-w-0 max-w-full items-center gap-1.5 overflow-hidden px-2 py-1 rounded-md border text-xs font-mono ${bg}`}>
+      <span className="shrink-0">{Icon.eye}</span>
+      <span className={`truncate text-[11px] font-medium font-mono ${color === 'plum' ? 'text-[#5D4A6B]' : 'text-stone-700'}`}>{name}</span>
     </div>
   );
 }
 
 function ViewBtn({ label }) {
   return (
-    <button className="inline-flex items-center gap-1 text-[11px] font-semibold text-stone-600 hover:text-stone-800
+    <button className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap text-[11px] font-semibold text-stone-600 hover:text-stone-800
                        bg-white hover:bg-stone-50 border border-stone-300 px-2 py-1 rounded transition-colors">
-      {Icon.eye}<span>{label || 'VIEW'}</span>
+      <span className="shrink-0">{Icon.eye}</span><span>{label || 'VIEW'}</span>
     </button>
   );
 }
@@ -551,7 +567,7 @@ function AllBookings({ bookings, search, setSearch, handleStatusUpdate, stats })
   const COLS = [
     { label: 'Date & Time',           span: '160px', align: 'left' },
     { label: 'Token',                  span: '130px', align: 'left' },
-    { label: 'Farmer Details',         span: 'minmax(0, 1fr)',   align: 'left' },
+    { label: 'Farmer Details',         span: 'minmax(180px, 1fr)',   align: 'left' },
     { label: 'Produce & Net Weight',   span: '160px', align: 'left' },
     { label: 'Status',                 span: '160px', align: 'left' },
     { label: 'Action',                 span: '140px', align: 'right' },
@@ -676,12 +692,12 @@ function WeighbridgeStation({ bookings, search, setSearch, handleStatusUpdate, s
 
   const COLS = [
     { label: 'Token',           span: '120px', align: 'left'   },
-    { label: 'Farmer Details',  span: 'minmax(0, 1fr)',   align: 'left'   },
+    { label: 'Farmer Details',  span: 'minmax(180px, 1fr)',   align: 'left'   },
     { label: 'Produce',         span: '120px', align: 'left'   },
     { label: 'Loaded (kg)',     span: '110px', align: 'right'  },
     { label: 'Unloaded (kg)',   span: '120px', align: 'right'  },
     { label: 'Net (kg)',        span: '100px', align: 'right'  },
-    { label: 'Weight Cert',     span: '190px', align: 'center' },
+    { label: 'Weight Cert',     span: '230px', align: 'center' },
     { label: 'Status',          span: '140px', align: 'center' },
     { label: 'Action',          span: '150px', align: 'right'  },
   ];
@@ -725,7 +741,7 @@ function WeighbridgeStation({ bookings, search, setSearch, handleStatusUpdate, s
         </div>
 
         {/* Weight Cert — center */}
-        <div className="flex items-center justify-center gap-2">
+        <div className="flex min-w-0 flex-wrap items-center justify-center gap-2">
           {weighed ? (
             <><ImgChip name={`SCALE_${b.tokenNumber?.slice(-2) || '00'}.JPG`} /><ViewBtn /></>
           ) : (
@@ -841,12 +857,12 @@ function QCLab({ bookings, search, setSearch, handleStatusUpdate, stats }) {
 
   const COLS = [
     { label: 'Token',          span: '120px', align: 'left'   },
-    { label: 'Farmer Details', span: 'minmax(0, 1fr)',   align: 'left'   },
+    { label: 'Farmer Details', span: 'minmax(180px, 1fr)',   align: 'left'   },
     { label: 'Produce Type',   span: '120px', align: 'left'   },
     { label: 'Moisture (%)',   span: '110px', align: 'center' },
     { label: 'Foreign (%)',    span: '110px', align: 'center' },
     { label: 'Grade',          span: '110px', align: 'center' },
-    { label: 'QC Cert Image',  span: '190px', align: 'center' },
+    { label: 'QC Cert Image',  span: '230px', align: 'center' },
     { label: 'Status',         span: '140px', align: 'center' },
     { label: 'Action',         span: '160px', align: 'right'  },
   ];
@@ -904,7 +920,7 @@ function QCLab({ bookings, search, setSearch, handleStatusUpdate, stats }) {
         </div>
 
         {/* QC Cert Image — center */}
-        <div className="flex items-center justify-center gap-2">
+        <div className="flex min-w-0 flex-wrap items-center justify-center gap-2">
           {qcDone ? (
             <><ImgChip name={`QC_${b.cropType?.toUpperCase() || 'CERT'}_01.JPG`} /><ViewBtn /></>
           ) : active ? (
@@ -1040,7 +1056,7 @@ function PaymentSettlement({ bookings, search, setSearch, handleStatusUpdate, st
   // No Payment Cert column — removed per user request
   const COLS = [
     { label: 'Token',            span: '120px', align: 'left'   },
-    { label: 'Farmer & Account', span: 'minmax(0, 1fr)',   align: 'left'   },
+    { label: 'Farmer & Account', span: 'minmax(180px, 1fr)',   align: 'left'   },
     { label: 'Produce',          span: '120px', align: 'left'   },
     { label: 'Qty (kg)',         span: '100px', align: 'right'  },
     { label: 'Rate (₹/kg)',      span: '120px', align: 'right'  },
@@ -1218,11 +1234,11 @@ function SchedulesView({ schedules, search, setSearch }) {
   const today = new Date().toISOString().split('T')[0];
 
   const COLS = [
-    { label: 'Schedule',    span: 'minmax(0, 1.3fr)', align: 'left'   },
+    { label: 'Schedule',    span: 'minmax(200px, 1.3fr)', align: 'left'   },
     { label: 'Date',        span: '120px',             align: 'left'   },
     { label: 'Time Window', span: '150px',             align: 'left'   },
     { label: 'MSP (₹/Qtl)', span: '110px',             align: 'right'  },
-    { label: 'Slot Fill',   span: 'minmax(0, 1fr)',    align: 'left'   },
+    { label: 'Slot Fill',   span: 'minmax(180px, 1fr)',    align: 'left'   },
     { label: 'Status',      span: '130px',             align: 'center' },
   ];
 
